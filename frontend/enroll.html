@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | Agent Enrollment Protocol</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.4/socket.io.min.js"></script>
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(0, 242, 255, 0.12);
+            --border-hover: rgba(0, 242, 255, 0.3);
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.35);
+            --status-success: #00ff88;
+            --status-error: #ff4d4d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(ellipse at 50% 30%, #0a1628 0%, #010208 70%);
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-blue) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- LAYOUT --- */
+        .page-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        .page-header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover { color: var(--neon-blue); }
+
+        /* --- PANELS --- */
+        .panel {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .panel:hover { border-color: var(--border-hover); }
+
+        .panel-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* --- CAMERA SECTION --- */
+        .camera-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+            border: 2px solid var(--border);
+        }
+
+        .video-container img,
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0e1a 0%, #000 100%);
+            color: var(--text-muted);
+            gap: 0.75rem;
+        }
+
+        .video-placeholder i { font-size: 2.5rem; opacity: 0.3; }
+        .video-placeholder p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .camera-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 6px;
+            background: rgba(0, 242, 255, 0.15);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            color: var(--neon-blue);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: none;
+        }
+
+        .camera-badge.visible { display: block; }
+
+        .scanner-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+            opacity: 0.8;
+            animation: scan 2.5s ease-in-out infinite;
+            z-index: 10;
+            box-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue);
+        }
+
+        @keyframes scan {
+            0%, 100% { top: 0; opacity: 0; }
+            10% { opacity: 0.9; }
+            50% { top: 100%; opacity: 0.6; }
+            90% { opacity: 0.9; }
+        }
+
+        .camera-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        .status-dot.online { background: var(--status-success); box-shadow: 0 0 8px var(--status-success); }
+        .status-dot.offline { background: var(--status-error); box-shadow: 0 0 8px var(--status-error); }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* --- FORM --- */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group.full-width { grid-column: 1 / -1; }
+
+        label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(0, 242, 255, 0.8);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        label i { font-size: 0.7rem; opacity: 0.6; }
+
+        .input-field {
+            background: rgba(8, 16, 33, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            width: 100%;
+            color: white;
+            font-size: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            background: rgba(8, 16, 33, 0.8);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
+        }
+
+        .input-field::placeholder { color: rgba(255, 255, 255, 0.25); }
+
+        select.input-field {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2300f2ff' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        select.input-field option {
+            background: #0a1628;
+            color: white;
+        }
+
+        textarea.input-field { resize: vertical; min-height: 80px; }
+
+        input[type="date"].input-field {
+            color-scheme: dark;
+            cursor: pointer;
+        }
+        input[type="date"].input-field::-webkit-calendar-picker-indicator {
+            filter: invert(0.7) sepia(1) hue-rotate(160deg);
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        input[type="date"].input-field::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+
+        /* --- BUTTON --- */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.75rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 242, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- INFO BOX --- */
+        .info-box {
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(188, 0, 255, 0.05));
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .info-box h4 {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            margin-bottom: 0.75rem;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .info-box li {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            padding: 0.35rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box li i { color: var(--neon-blue); font-size: 0.7rem; }
+
+        /* --- NOTIFICATION --- */
+        .notification {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            font-size: 0.85rem;
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success { border-color: var(--status-success); color: var(--status-success); }
+        .notification.error { border-color: var(--status-error); color: var(--status-error); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* --- LOADING --- */
+        .loader-ring {
+            width: 24px; height: 24px;
+            border: 2px solid rgba(0, 242, 255, 0.1);
+            border-top: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .page-layout { grid-template-columns: 1fr; gap: 1.5rem; padding: 1.5rem; }
+            .camera-section { order: -1; }
+        }
+
+        @media (max-width: 640px) {
+            .page-layout { padding: 1rem; }
+            .panel { padding: 1.25rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .logo-text { font-size: 1.3rem; }
+            .page-header { flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="notification" class="notification"></div>
+
+    <div class="page-layout">
+        <!-- Header -->
+        <header class="page-header">
+            <a href="/dashboard" class="back-link">
+                <i class="fas fa-arrow-left"></i>Return to Admin Dashboard
+            </a>
+            <div class="flex items-center gap-3">
+                <div class="camera-status">
+                    <span id="cam-dot" class="status-dot offline"></span>
+                    <span id="cam-status">Camera Offline</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Camera Section -->
+        <section class="camera-section">
+            <div class="panel">
+                <div class="panel-title"><i class="fas fa-camera"></i>Biometric Scanner</div>
+                <div class="video-container">
+                    <div class="video-placeholder" id="video-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p>Establishing optical link...</p>
+                    </div>
+                    <video id="video-preview" autoplay playsinline muted style="display: none;"></video>
+                    <canvas id="enroll-canvas" style="display: none;"></canvas>
+                    <div class="scanner-line"></div>
+                    <div class="camera-badge" id="camera-mode-badge"><i class="fas fa-info-circle mr-1"></i>Mock Mode</div>
+                    <canvas id="face-box-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5;"></canvas>
+                    <div id="face-overlay" style="position:absolute;inset:0;border:3px solid rgba(255,77,77,0.5);border-radius:12px;pointer-events:none;z-index:6;transition:all 0.3s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;">
+                        <span id="face-status-text" style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--neon-blue);letter-spacing:0.1em;background:rgba(0,0,0,0.7);padding:4px 12px;border-radius:4px;">WAITING FOR CAMERA...</span>
+                    </div>
+                </div>
+                <!-- Capture status -->
+                <div id="capture-status" style="display: block; margin-top: 0.75rem; padding: 0.75rem; border-radius: 8px; background: rgba(0,242,255,0.05); border: 1px solid rgba(0,242,255,0.2);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <i class="fas fa-fingerprint" style="color: var(--neon-blue);"></i>
+                            <span id="capture-status-text" style="font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--neon-blue); letter-spacing: 0.1em;">LOOK AT CAMERA TO AUTO-CAPTURE</span>
+                        </div>
+                        <button type="button" id="retake-btn" onclick="retakePhoto()" style="display:none;font-family:'JetBrains Mono',monospace;font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.35rem 0.75rem;border:1px solid rgba(255,77,77,0.4);border-radius:6px;background:transparent;color:var(--status-error);cursor:pointer;transition:all 0.2s;">Retake</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h4><i class="fas fa-info-circle mr-2"></i>Enrollment Guidelines</h4>
+                <ul>
+                    <li><i class="fas fa-check-circle"></i>Ensure your face is clearly visible in the camera</li>
+                    <li><i class="fas fa-check-circle"></i>Glasses are allowed - just keep your face steady</li>
+                    <li><i class="fas fa-check-circle"></i>Maintain good lighting conditions</li>
+                    <li><i class="fas fa-check-circle"></i>Only one person should be in frame</li>
+                    <li><i class="fas fa-check-circle"></i>Look directly at the camera</li>
+                    <li><i class="fas fa-check-circle"></i>Hold still - system auto-captures when face is detected</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Form Section -->
+        <section class="form-section">
+            <div class="panel">
+                <div class="panel-title"><i class="fas fa-user-plus"></i>Agent Enrollment Protocol</div>
+
+                <form id="enrollment-form" class="space-y-4">
+                    <!-- Basic Information -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i>Full Name *</label>
+                            <input type="text" id="full_name" name="full_name" class="input-field" autocomplete="name" maxlength="30" required onkeypress="return /[a-zA-Z\s'-]/.test(event.key)">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-id-badge"></i>Employee ID *</label>
+                            <input type="text" id="employee_id" name="employee_id" class="input-field" readonly style="opacity: 0.7; cursor: not-allowed;">
+                            <span class="field-hint">Auto-generated</span>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-envelope"></i>Email Address</label>
+                            <input type="email" id="email" name="email" class="input-field" placeholder="employee@gmail.com" maxlength="40">
+                            <span class="field-hint">Max 40 chars. Must be a valid email.</span>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i>Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" class="input-field" placeholder="+639452934417" maxlength="13">
+                            <span class="field-hint">Format: +63XXXXXXXXXX (13 chars)</span>
+                        </div>
+                    </div>
+
+                    <!-- Address (Philippine) -->
+                    <div class="form-group full-width">
+                        <label><i class="fas fa-map-marker-alt"></i>Address</label>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-globe-asia"></i>Region</label>
+                            <select id="region" name="region" class="input-field">
+                                <option value="">Select Region</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-map"></i>Province</label>
+                            <select id="province" name="province" class="input-field" disabled>
+                                <option value="">Select Province</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-city"></i>City / Municipality</label>
+                            <select id="city" name="city" class="input-field" disabled>
+                                <option value="">Select City</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-home"></i>Barangay</label>
+                            <select id="barangay" name="barangay" class="input-field" disabled>
+                                <option value="">Select Barangay</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-road"></i>Street Address</label>
+                            <input type="text" id="street_address" name="street_address" class="input-field" placeholder="House No., Street Name">
+                        </div>
+                        <div class="form-group">
+                            <label style="font-size: 0.55rem;"><i class="fas fa-mail-bulk"></i>Postal Code</label>
+                            <input type="text" id="postal_code" name="postal_code" class="input-field" placeholder="e.g., 1000" maxlength="4">
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user-shield"></i>Emergency Contact Name</label>
+                            <input type="text" id="emergency_contact_name" name="emergency_contact_name" class="input-field" placeholder="Contact name" maxlength="30" onkeypress="return /[a-zA-Z\s'-]/.test(event.key)">
+                            <span class="field-hint">Max 30 chars. Each word starts with capital.</span>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone-alt"></i>Emergency Contact Phone</label>
+                            <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" class="input-field" maxlength="13">
+                        </div>
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i>Department</label>
+                            <select id="department_id" name="department_id" class="input-field">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-user-tie"></i>Position</label>
+                            <select id="position_id" name="position_id" class="input-field">
+                                <option value="">Select Position</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-clock"></i>Shift</label>
+                            <select id="shift_id" name="shift_id" class="input-field">
+                                <option value="">Select Shift</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-file-contract"></i>Employment Type</label>
+                            <select id="employment_type" name="employment_type" class="input-field">
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Contract">Contract</option>
+                                <option value="Intern">Intern</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-plus"></i>Hire Date *</label>
+                            <input type="date" id="hire_date" name="hire_date" class="input-field" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-birthday-cake"></i>Date of Birth *</label>
+                            <input type="date" id="date_of_birth" name="date_of_birth" class="input-field" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="enroll-btn" class="btn-primary w-full">
+                        <i class="fas fa-fingerprint mr-2"></i>Initialize Biometric Scan
+                    </button>
+                </form>
+
+                <div id="progress-container" class="mt-4 hidden">
+                    <div class="flex items-center justify-center gap-3">
+                        <div class="loader-ring"></div>
+                        <span class="text-sm text-cyan-400">Processing biometric data...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+const API_BASE = (function() {
+    const o = window.location.origin;
+    if (o && o !== 'null' && !o.includes('blob:')) return o;
+    return 'http://localhost:5000';
+})();
+window.API_BASE = API_BASE;
+const PSGC_BASE = 'https://psgc.gitlab.io/api';
+
+let cameraActive = false;
+let cameraFrozen = false;
+let cameraPollInterval = null;
+let facePollInterval = null;
+let faceDetected = false;
+let capturedFrame = null;
+let faceDetectedSince = null;
+let autoCapturing = false;
+let browserStream = null;
+let faceSocket = null;
+let faceSocketProcessing = false;
+
+async function initCamera() {
+    const preview = document.getElementById('video-preview');
+    const placeholder = document.getElementById('video-placeholder');
+    const statusDot = document.getElementById('cam-dot');
+    const statusText = document.getElementById('cam-status');
+    if (!preview) return;
+
+    // Stop any existing stream
+    if (browserStream) {
+        browserStream.getTracks().forEach(t => t.stop());
+        browserStream = null;
+    }
+    if (cameraPollInterval) { clearInterval(cameraPollInterval); cameraPollInterval = null; }
+
+    // Show permission request
+    placeholder.style.display = 'flex';
+    placeholder.innerHTML = '<i class="fas fa-video" style="color:var(--neon-cyan);font-size:2rem"></i><p style="color:var(--text-primary);margin-top:0.5rem">Camera Access Required</p><p style="color:var(--text-muted);font-size:0.7rem">Please allow camera access when prompted</p>';
+    preview.style.display = 'none';
+    statusDot.className = 'status-dot warning';
+    statusText.textContent = 'Requesting access...';
+
+    // Check if getUserMedia is supported
+    const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    
+    if (!hasGetUserMedia) {
+        // Fallback: use server-side camera (MJPEG stream with face detection)
+        console.log('[Camera] getUserMedia not available, falling back to server camera...');
+        placeholder.innerHTML = '<i class="fas fa-spinner fa-spin" style="color:var(--neon-cyan);font-size:2rem"></i><p style="color:var(--text-primary);margin-top:0.5rem">Connecting to server camera...</p><p style="color:var(--text-muted);font-size:0.7rem">Using DroidCam or server webcam</p>';
+        statusText.textContent = 'Connecting to server camera...';
+        
+        // Change video element to img for MJPEG
+        const img = document.createElement('img');
+        img.id = 'video-preview';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:none;border-radius:12px;';
+        img.alt = 'Server Camera';
+        preview.parentNode.replaceChild(img, placeholder);
+        
+        // Update preview reference to the new img element
+        const serverPreview = document.getElementById('video-preview');
+        
+        const streamUrl = window.API_BASE + '/video_feed?mode=enroll';
+        serverPreview.onload = function() {
+            cameraActive = true;
+            serverPreview.style.display = 'block';
+            statusDot.className = 'status-dot online';
+            statusText.textContent = 'Camera Active (Server)';
+            console.log('[Camera] Server stream connected');
+            startFaceDetection();
+        };
+        serverPreview.onerror = function() {
+            if (cameraFrozen) return;
+            cameraActive = false;
+            console.warn('[Camera] Server stream error, retrying...');
+            setTimeout(() => { if (!cameraFrozen) serverPreview.src = streamUrl + '&t=' + Date.now(); }, 2000);
+        };
+        serverPreview.src = streamUrl;
+        
+        setTimeout(() => {
+            if (!cameraActive) {
+                console.warn('[Camera] Stream timeout');
+                serverPreview.onerror();
+            }
+        }, 8000);
+        return;
+    }
+
+    // Request camera permission via browser
+    console.log('[Camera] Requesting camera permission...');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' },
+            audio: false
+        });
+        browserStream = stream;
+        preview.srcObject = stream;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        cameraActive = true;
+        statusDot.className = 'status-dot online';
+        statusText.textContent = 'Camera Online';
+        console.log('[Camera] Camera stream started');
+        startFaceDetection();
+    } catch (err) {
+        console.error('[Camera] Camera access error:', err);
+        let msg = 'Camera access denied';
+        let detail = 'Check your browser settings and allow camera access';
+        if (err.name === 'NotAllowedError') {
+            msg = 'Camera permission denied';
+            detail = 'Click the camera icon in the address bar and allow access';
+        } else if (err.name === 'NotFoundError') {
+            msg = 'No camera found';
+            detail = 'Connect a webcam to this device to enroll employees';
+        } else if (err.name === 'NotReadableError') {
+            msg = 'Camera is in use by another app';
+            detail = 'Close other apps using the camera (DroidCam, Zoom, Teams, etc.) and retry';
+        }
+
+        // If browser camera fails, try server camera as fallback
+        console.log('[Camera] Browser camera failed, trying server camera...');
+        placeholder.innerHTML = '<i class="fas fa-spinner fa-spin" style="color:var(--neon-cyan);font-size:2rem"></i><p style="color:var(--text-primary);margin-top:0.5rem">Trying server camera...</p><p style="color:var(--text-muted);font-size:0.7rem">Falling back to DroidCam or server webcam</p>';
+        statusText.textContent = 'Trying server camera...';
+        
+        const img = document.createElement('img');
+        img.id = 'video-preview';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:none;border-radius:12px;';
+        img.alt = 'Server Camera';
+        preview.parentNode.replaceChild(img, placeholder);
+        
+        // Update preview reference to the new img element
+        const serverPreview = document.getElementById('video-preview');
+        
+        const streamUrl = window.API_BASE + '/video_feed?mode=enroll';
+        serverPreview.onload = function() {
+            cameraActive = true;
+            serverPreview.style.display = 'block';
+            statusDot.className = 'status-dot online';
+            statusText.textContent = 'Camera Active (Server)';
+            console.log('[Camera] Server stream connected');
+            startFaceDetection();
+        };
+        serverPreview.onerror = function() {
+            if (cameraFrozen) return;
+            cameraActive = false;
+            placeholder.innerHTML = '<i class="fas fa-camera-slash" style="color:var(--status-error);font-size:2rem"></i><p style="color:var(--status-error);margin-top:0.5rem">' + msg + '</p><p style="color:var(--text-muted);font-size:0.7rem">' + detail + '</p><button onclick="initCamera()" class="mt-2 px-3 py-1 text-xs rounded border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">Retry</button>';
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = msg;
+        };
+        serverPreview.src = streamUrl;
+        
+        setTimeout(() => {
+            if (!cameraActive) {
+                console.warn('[Camera] Server stream timeout');
+                serverPreview.onerror();
+            }
+        }, 8000);
+    }
+}
+
+function stopCamera() {
+    if (cameraPollInterval) { clearInterval(cameraPollInterval); cameraPollInterval = null; }
+    if (facePollInterval) { clearInterval(facePollInterval); facePollInterval = null; }
+    if (faceSocket) { faceSocket.disconnect(); faceSocket = null; }
+    if (browserStream) { browserStream.getTracks().forEach(t => t.stop()); browserStream = null; }
+    cameraActive = false;
+    const statusDot = document.getElementById('cam-dot');
+    const statusText = document.getElementById('cam-status');
+    if (statusDot) statusDot.className = 'status-dot offline';
+    if (statusText) statusText.textContent = 'Camera Stopped';
+    console.log('[Camera] Stopped');
+}
+
+function freezePreview() {
+    // Freeze the last frame on the preview element instead of going black
+    const preview = document.getElementById('video-preview');
+    if (!preview) return;
+    
+    cameraFrozen = true;
+    
+    if (preview.tagName === 'VIDEO' && browserStream) {
+        // Browser camera: draw last frame onto a canvas, then replace video with img
+        const canvas = document.createElement('canvas');
+        canvas.width = preview.videoWidth || 640;
+        canvas.height = preview.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        
+        // Stop the stream
+        browserStream.getTracks().forEach(t => t.stop());
+        browserStream = null;
+        
+        // Replace video with frozen img
+        const img = document.createElement('img');
+        img.id = 'video-preview';
+        img.src = dataUrl;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;';
+        preview.parentNode.replaceChild(img, preview);
+    } else if (preview.tagName === 'IMG') {
+        // Server camera: stop MJPEG by removing onerror handler, then clear src
+        preview.onerror = null;
+        preview.src = '';
+    }
+    
+    // Stop face detection
+    if (facePollInterval) { clearInterval(facePollInterval); facePollInterval = null; }
+    if (faceSocket) { faceSocket.disconnect(); faceSocket = null; }
+    cameraActive = false;
+}
+
+function startFaceDetection() {
+    const overlay = document.getElementById('face-overlay');
+    const statusEl = document.getElementById('face-status-text');
+    const preview = document.getElementById('video-preview');
+    if (!overlay) return;
+    console.log('[Face] Starting face detection...');
+    
+    // Detect if using browser camera (video element with srcObject)
+    const isBrowserCamera = preview && preview.tagName === 'VIDEO' && preview.srcObject;
+    
+    if (isBrowserCamera) {
+        // Browser camera: use WebSocket for low-latency detection
+        if (faceSocket) { faceSocket.disconnect(); faceSocket = null; }
+        
+        faceSocket = io(window.location.origin, {
+            transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionDelay: 100
+        });
+        
+        faceSocket.on('connect', () => { console.log('[WS] Connected for enrollment detection'); });
+        faceSocket.on('disconnect', () => { console.log('[WS] Disconnected'); });
+        faceSocket.on('detect_result', (data) => {
+            faceSocketProcessing = false;
+            if (capturedFrame || !cameraActive) return;
+            
+            faceDetected = data.face_count > 0;
+            if (faceDetected) {
+                console.log('[Face] Detected:', data.face_count, 'face(s)');
+                overlay.style.borderColor = 'var(--status-success)';
+                overlay.style.boxShadow = '0 0 20px rgba(0,255,136,0.3)';
+                if (data.faces && data.faces.length > 0) {
+                    const f = data.faces[0];
+                    drawFaceBox([f.x1, f.y1, f.x2, f.y2]);
+                }
+                if (!faceDetectedSince) {
+                    faceDetectedSince = Date.now();
+                    statusEl.textContent = 'FACE DETECTED - HOLD STILL...';
+                    statusEl.style.color = 'var(--status-success)';
+                    console.log('[Face] Timer started, capturing in 2s...');
+                } else if (Date.now() - faceDetectedSince >= 2000 && !autoCapturing) {
+                    autoCapturing = true;
+                    console.log('[Face] Timer complete, auto-capturing...');
+                    autoCapture();
+                }
+            } else {
+                faceDetectedSince = null;
+                overlay.style.borderColor = 'rgba(255,77,77,0.5)';
+                overlay.style.boxShadow = '0 0 10px rgba(255,77,77,0.1)';
+                statusEl.textContent = 'NO FACE - LOOK AT CAMERA';
+                statusEl.style.color = 'var(--status-error)';
+                clearFaceBox();
+            }
+        });
+        
+        const captureCanvas = document.createElement('canvas');
+        const captureCtx = captureCanvas.getContext('2d');
+        
+        facePollInterval = setInterval(() => {
+            if (capturedFrame || !cameraActive || !faceSocket || faceSocketProcessing) return;
+            try {
+                captureCanvas.width = preview.videoWidth || 640;
+                captureCanvas.height = preview.videoHeight || 480;
+                captureCtx.drawImage(preview, 0, 0, captureCanvas.width, captureCanvas.height);
+                const frameData = captureCanvas.toDataURL('image/jpeg', 0.6);
+                faceSocketProcessing = true;
+                faceSocket.emit('detect_frame', { frame: frameData });
+            } catch (e) { faceSocketProcessing = false; }
+        }, 33);  // ~30fps
+    } else {
+        // Server camera: poll face-status endpoint
+        facePollInterval = setInterval(async () => {
+            if (capturedFrame) return;
+            try {
+                const res = await fetch(API_BASE + '/api/camera/face-status');
+                if (res.ok) {
+                    const data = await res.json();
+                    faceDetected = data.face_count > 0;
+                    if (faceDetected) {
+                        console.log('[Face] Detected:', data.face_count, 'face(s)');
+                        overlay.style.borderColor = 'var(--status-success)';
+                        overlay.style.boxShadow = '0 0 20px rgba(0,255,136,0.3)';
+                        if (data.faces && data.faces.length > 0) {
+                            const f = data.faces[0];
+                            drawFaceBox([f.x1, f.y1, f.x2, f.y2]);
+                        }
+                        if (!faceDetectedSince) {
+                            faceDetectedSince = Date.now();
+                            statusEl.textContent = 'FACE DETECTED - HOLD STILL...';
+                            statusEl.style.color = 'var(--status-success)';
+                            console.log('[Face] Timer started, capturing in 2s...');
+                        } else if (Date.now() - faceDetectedSince >= 2000 && !autoCapturing) {
+                            autoCapturing = true;
+                            console.log('[Face] Timer complete, auto-capturing...');
+                            autoCapture();
+                        }
+                    } else {
+                        faceDetectedSince = null;
+                        console.log('[Face] No face detected');
+                        overlay.style.borderColor = 'rgba(255,77,77,0.5)';
+                        overlay.style.boxShadow = '0 0 10px rgba(255,77,77,0.1)';
+                        statusEl.textContent = 'NO FACE - LOOK AT CAMERA';
+                        statusEl.style.color = 'var(--status-error)';
+                        clearFaceBox();
+                    }
+                }
+            } catch (e) { /* silent */ }
+        }, 500);
+    }
+}
+
+function drawFaceBox(box) {
+    const canvas = document.getElementById('face-box-canvas');
+    if (!canvas || !box) return;
+    const preview = document.getElementById('video-preview');
+    if (!preview) return;
+    canvas.width = preview.clientWidth || 640;
+    canvas.height = preview.clientHeight || 480;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Handle both img (server camera) and video (browser camera)
+    const naturalW = preview.naturalWidth || preview.videoWidth || 640;
+    const naturalH = preview.naturalHeight || preview.videoHeight || 480;
+    const scaleX = canvas.width / naturalW;
+    const scaleY = canvas.height / naturalH;
+    const x = box[0] * scaleX, y = box[1] * scaleY;
+    const w = (box[2] - box[0]) * scaleX, h = (box[3] - box[1]) * scaleY;
+    
+    // Red UNRECOGNIZED style
+    ctx.strokeStyle = '#ff0000';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x, y, w, h);
+    
+    // Corners
+    const cornerLen = Math.min(20, w * 0.2, h * 0.2);
+    ctx.lineWidth = 4;
+    [[x,y,1,1],[x+w,y,-1,1],[x,y+h,1,-1],[x+w,y+h,-1,-1]].forEach(([cx,cy,dx,dy]) => {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + cornerLen*dy);
+        ctx.lineTo(cx, cy);
+        ctx.lineTo(cx + cornerLen*dx, cy);
+        ctx.stroke();
+    });
+    
+    // Label
+    ctx.font = 'bold 12px JetBrains Mono';
+    const label = 'FACE DETECTED';
+    const textW = ctx.measureText(label).width;
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(x, y - 22, textW + 12, 20);
+    ctx.fillStyle = '#000';
+    ctx.fillText(label, x + 6, y - 7);
+}
+
+function clearFaceBox() {
+    const canvas = document.getElementById('face-box-canvas');
+    if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+}
+
+async function captureFrame() {
+    const preview = document.getElementById('video-preview');
+    const canvas = document.getElementById('enroll-canvas');
+    if (!preview || !canvas || !cameraActive) return null;
+    const ctx = canvas.getContext('2d');
+    canvas.width = preview.naturalWidth || 640;
+    canvas.height = preview.naturalHeight || 480;
+    ctx.drawImage(preview, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.85);
+}
+
+async function autoCapture() {
+    if (!cameraActive || capturedFrame) return;
+    console.log('[AutoCapture] Capturing frame...');
+    const frame = await captureFrame();
+    if (frame) {
+        capturedFrame = frame;
+        const statusEl = document.getElementById('capture-status-text');
+        statusEl.textContent = 'FACE CAPTURED - FILL OUT THE FORM';
+        statusEl.style.color = 'var(--status-success)';
+        document.getElementById('retake-btn').style.display = 'inline-block';
+        console.log('[AutoCapture] Frame captured, freezing preview...');
+        showNotification('Face captured! Fill out the form below.', 'success');
+        const c = document.querySelector('.video-container');
+        c.style.boxShadow = '0 0 30px var(--status-success)';
+        setTimeout(() => { c.style.boxShadow = ''; }, 500);
+        freezePreview();
+    }
+}
+
+function retakePhoto() {
+    capturedFrame = null;
+    faceDetectedSince = null;
+    autoCapturing = false;
+    cameraFrozen = false;
+    document.getElementById('retake-btn').style.display = 'none';
+    const statusEl = document.getElementById('capture-status-text');
+    statusEl.textContent = 'LOOK AT CAMERA TO AUTO-CAPTURE';
+    statusEl.style.color = 'var(--neon-blue)';
+    clearFaceBox();
+    const overlay = document.getElementById('face-overlay');
+    if (overlay) {
+        overlay.style.borderColor = 'rgba(255,77,77,0.5)';
+        overlay.style.boxShadow = '0 0 10px rgba(255,77,77,0.1)';
+        document.getElementById('face-status-text').textContent = 'WAITING FOR CAMERA...';
+        document.getElementById('face-status-text').style.color = 'var(--status-error)';
+    }
+    console.log('[Retake] Restarting camera...');
+    initCamera();
+}
+
+function showNotification(message, type) {
+    const el = document.getElementById('notification');
+    el.textContent = message;
+    el.className = 'notification ' + (type || 'success');
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 4000);
+}
+
+function capitalizeWords(s) { return s.replace(/\b\w/g, c => c.toUpperCase()); }
+function validateFullName(n) { if (!n || n.length < 2) return 'Min 2 characters'; if (n.length > 30) return 'Max 30 characters'; if (/[0-9]/.test(n)) return 'Numbers not allowed'; if (!/^[A-Za-z\s'-]+$/.test(n)) return 'Letters, spaces, hyphens only'; return null; }
+function validateEmail(e) { if (!e) return null; if (e.length > 40) return 'Max 40 characters'; if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) return 'Invalid email'; return null; }
+function validatePhone(p) { if (!p) return null; const c = p.replace(/\s/g, ''); if (!/^\+63\d{10}$/.test(c)) return 'Format: +63XXXXXXXXXX'; return null; }
+function validateDOB(d) { if (!d) return 'Required'; const y = new Date(d).getFullYear(); const age = new Date().getFullYear() - y; if (age < 18) return 'Must be 18+'; if (y < 1954) return 'Year must be 1954+'; return null; }
+function validateHireDate(d) { if (!d) return 'Required'; if (new Date(d) > new Date()) return 'Cannot be future'; return null; }
+function showFieldError(id, msg) { const f = document.getElementById(id); if (!f) return; f.style.borderColor = 'var(--status-error)'; let h = f.parentNode.querySelector('.field-error'); if (!h) { h = document.createElement('span'); h.className = 'field-error'; h.style.cssText = 'color:var(--status-error);font-size:0.55rem;font-family:JetBrains Mono,monospace;margin-top:0.25rem;'; f.parentNode.appendChild(h); } h.textContent = msg; }
+function clearFieldError(id) { const f = document.getElementById(id); if (!f) return; f.style.borderColor = ''; const h = f.parentNode.querySelector('.field-error'); if (h) h.remove(); }
+
+async function generateEmployeeId() { try { const r = await fetch(API_BASE + '/api/employee/generate-id'); if (r.ok) { const d = await r.json(); document.getElementById('employee_id').value = d.employee_id; } } catch (e) { document.getElementById('employee_id').value = 'EMP-0001'; } }
+
+async function loadRegions() { try { const r = await fetch(PSGC_BASE + '/regions.json'); if (!r.ok) return; const data = await r.json(); const s = document.getElementById('region'); data.sort((a,b)=>a.name.localeCompare(b.name)); data.forEach(reg=>{const o=document.createElement('option');o.value=reg.code;o.textContent=reg.name;s.appendChild(o);}); } catch(e){console.warn('Regions:',e);} }
+async function loadProvinces(code) { const s=document.getElementById('province');s.innerHTML='<option value="">Loading...</option>';s.disabled=true;document.getElementById('city').innerHTML='<option value="">Select City</option>';document.getElementById('city').disabled=true;document.getElementById('barangay').innerHTML='<option value="">Select Barangay</option>';document.getElementById('barangay').disabled=true;document.getElementById('postal_code').value='';if(!code){s.innerHTML='<option value="">Select Province</option>';return;}try{const r=await fetch(PSGC_BASE+'/regions/'+code+'/provinces.json');if(!r.ok)return;const data=await r.json();s.innerHTML='<option value="">Select Province</option>';data.sort((a,b)=>a.name.localeCompare(b.name));data.forEach(p=>{const o=document.createElement('option');o.value=p.code;o.textContent=p.name;s.appendChild(o);});s.disabled=false;}catch(e){console.warn('Provinces:',e);}}
+async function loadCities(code) { const s=document.getElementById('city');s.innerHTML='<option value="">Loading...</option>';s.disabled=true;document.getElementById('barangay').innerHTML='<option value="">Select Barangay</option>';document.getElementById('barangay').disabled=true;document.getElementById('postal_code').value='';if(!code){s.innerHTML='<option value="">Select City</option>';return;}try{const r=await fetch(PSGC_BASE+'/provinces/'+code+'/cities-municipalities.json');if(!r.ok)return;const data=await r.json();s.innerHTML='<option value="">Select City</option>';data.sort((a,b)=>a.name.localeCompare(b.name));data.forEach(c=>{const o=document.createElement('option');o.value=c.code;o.textContent=c.name;s.appendChild(o);});s.disabled=false;}catch(e){console.warn('Cities:',e);}}
+async function loadBarangays(code) { const s=document.getElementById('barangay');s.innerHTML='<option value="">Loading...</option>';s.disabled=true;document.getElementById('postal_code').value='';if(!code){s.innerHTML='<option value="">Select Barangay</option>';return;}try{const r=await fetch(PSGC_BASE+'/cities-municipalities/'+code+'/barangays.json');if(!r.ok)return;const data=await r.json();s.innerHTML='<option value="">Select Barangay</option>';data.sort((a,b)=>a.name.localeCompare(b.name));data.forEach(b=>{const o=document.createElement('option');o.value=b.code;o.textContent=b.name;s.appendChild(o);});s.disabled=false;}catch(e){console.warn('Barangays:',e);}}
+
+async function loadDropdownData() { try { const [d,p,s]=await Promise.allSettled([fetch(API_BASE+'/api/departments'),fetch(API_BASE+'/api/positions'),fetch(API_BASE+'/api/shifts')]); if(d.status==='fulfilled'&&d.value.ok){const data=await d.value.json();const sel=document.getElementById('department_id');data.forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.name;sel.appendChild(o);});} if(p.status==='fulfilled'&&p.value.ok){const data=await p.value.json();const sel=document.getElementById('position_id');data.forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.title;sel.appendChild(o);});} if(s.status==='fulfilled'&&s.value.ok){const data=await s.value.json();const sel=document.getElementById('shift_id');data.forEach(i=>{const o=document.createElement('option');o.value=i.id;o.textContent=i.name+' ('+i.start_time.substring(0,5)+' - '+i.end_time.substring(0,5)+')';sel.appendChild(o);});} } catch(e){console.error('Dropdowns:',e);} }
+
+let isSubmitting = false;
+document.getElementById('enrollment-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    ['full_name','email','phone','hire_date','date_of_birth','emergency_contact_name','emergency_contact_phone'].forEach(clearFieldError);
+    const fn=document.getElementById('full_name').value.trim();
+    const em=document.getElementById('email').value.trim();
+    const ph=document.getElementById('phone').value.trim();
+    const dob=document.getElementById('date_of_birth').value;
+    const hd=document.getElementById('hire_date').value;
+    const eph=document.getElementById('emergency_contact_phone').value.trim();
+    if(fn) document.getElementById('full_name').value=capitalizeWords(fn);
+    let err=false; let e1;
+    e1=validateFullName(fn);if(e1){showFieldError('full_name',e1);err=true;}
+    e1=validateEmail(em);if(e1){showFieldError('email',e1);err=true;}
+    e1=validatePhone(ph);if(e1){showFieldError('phone',e1);err=true;}
+    const ecn=document.getElementById('emergency_contact_name').value.trim();
+    if(ecn) document.getElementById('emergency_contact_name').value=capitalizeWords(ecn);
+    e1=validateFullName(ecn);if(e1){showFieldError('emergency_contact_name',e1);err=true;}
+    e1=validatePhone(eph);if(e1){showFieldError('emergency_contact_phone',e1);err=true;}
+    e1=validateDOB(dob);if(e1){showFieldError('date_of_birth',e1);err=true;}
+    e1=validateHireDate(hd);if(e1){showFieldError('hire_date',e1);err=true;}
+    if(err) return;
+    if(!capturedFrame){showNotification('Face not captured. Wait for auto-capture.','error');return;}
+    isSubmitting=true;
+    const btn=document.getElementById('enroll-btn');const prog=document.getElementById('progress-container');
+    btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';prog.classList.remove('hidden');
+    try {
+        const fd={full_name:fn,employee_id:document.getElementById('employee_id').value.trim(),email:em||null,phone:ph||null,region:document.getElementById('region').value||null,province:document.getElementById('province').value||null,city:document.getElementById('city').value||null,barangay:document.getElementById('barangay').value||null,street_address:document.getElementById('street_address').value.trim()||null,postal_code:document.getElementById('postal_code').value.trim()||null,emergency_contact_name:document.getElementById('emergency_contact_name').value.trim()||null,emergency_contact_phone:eph||null,department_id:parseInt(document.getElementById('department_id').value)||null,position_id:parseInt(document.getElementById('position_id').value)||null,shift_id:parseInt(document.getElementById('shift_id').value)||null,employment_type:document.getElementById('employment_type').value,hire_date:hd||null,date_of_birth:dob||null,frame_front:capturedFrame};
+        const res=await fetch(API_BASE+'/api/camera/enroll-frame',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fd)});
+        const result=await res.json();
+        if(res.ok&&result.success){showNotification((result.message||'Enrolled')+(result.employee_id_display?' (ID: '+result.employee_id_display+')':''),'success');setTimeout(()=>{document.getElementById('enrollment-form').reset();capturedFrame=null;faceDetectedSince=null;autoCapturing=false;generateEmployeeId();initCamera();},1500);}
+        else showNotification(result.message||result.error||'Failed','error');
+    } catch(e){showNotification('Connection error','error');}
+    finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-fingerprint mr-2"></i>Initialize Biometric Scan';prog.classList.add('hidden');isSubmitting=false;}
+});
+
+document.getElementById('region').addEventListener('change',function(){loadProvinces(this.value);});
+document.getElementById('province').addEventListener('change',function(){loadCities(this.value);});
+document.getElementById('city').addEventListener('change',function(){loadBarangays(this.value);});
+document.getElementById('emergency_contact_name').addEventListener('blur',function(){this.value=capitalizeWords(this.value.trim());});
+['phone','emergency_contact_phone'].forEach(id=>{document.getElementById(id).addEventListener('input',function(){let v=this.value.replace(/[^\d+]/g,'');if(v&&!v.startsWith('+63')){if(v.startsWith('63'))v='+'+v;else if(v.startsWith('0'))v='+63'+v.substring(1);else v='+63'+v;}this.value=v;});});
+
+initCamera(); loadDropdownData(); generateEmployeeId(); loadRegions();
+document.getElementById('hire_date').value = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

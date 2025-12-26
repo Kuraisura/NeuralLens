@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | Employee Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --surface: rgba(255, 255, 255, 0.03);
+            --surface-hover: rgba(255, 255, 255, 0.06);
+            --border: rgba(0, 242, 255, 0.12);
+            --border-hover: rgba(0, 242, 255, 0.3);
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.35);
+            --status-success: #00ff88;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(ellipse at 50% 30%, #0a1628 0%, #010208 70%);
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-blue) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .input-field {
+            background: rgba(8, 16, 33, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .employee-row {
+            background: var(--surface);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .employee-row:hover {
+            background: var(--surface-hover);
+            transform: translateX(4px);
+        }
+
+        .employee-row td {
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 242, 255, 0.05);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.05);
+        }
+
+        .employee-row td:first-child {
+            border-left: 1px solid rgba(0, 242, 255, 0.05);
+            border-radius: 8px 0 0 8px;
+        }
+
+        .employee-row td:last-child {
+            border-right: 1px solid rgba(0, 242, 255, 0.05);
+            border-radius: 0 8px 8px 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .badge-inactive {
+            background: rgba(255, 77, 77, 0.1);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 77, 77, 0.3);
+        }
+
+        .nav-link {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--neon-blue);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(0, 242, 255, 0.2);
+            border-top-color: var(--neon-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1024px) {
+            .dashboard-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr !important; }
+            .header-nav { flex-wrap: wrap; gap: 0.5rem; }
+            .header-nav .nav-link { font-size: 0.75rem; padding: 0.5rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 md:p-6">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="logo-text mb-1">NEURAL EYE</h1>
+                <p class="text-white/50 text-sm">Employee Management System</p>
+            </div>
+            <div class="header-nav flex items-center gap-2 flex-wrap">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-video"></i><span class="hidden sm:inline">Live Feed</span>
+                </a>
+                <a href="/enroll" class="nav-link">
+                    <i class="fas fa-user-plus"></i><span class="hidden sm:inline">Enroll</span>
+                </a>
+                <a href="/reports" class="nav-link">
+                    <i class="fas fa-chart-bar"></i><span class="hidden sm:inline">Reports</span>
+                </a>
+                <a href="/leaves" class="nav-link">
+                    <i class="fas fa-calendar-times"></i><span class="hidden sm:inline">Leaves</span>
+                </a>
+                <a href="/dashboard" class="nav-link active">
+                    <i class="fas fa-users"></i><span class="hidden sm:inline">Employees</span>
+                </a>
+                <button onclick="logout()" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i><span class="hidden sm:inline">Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="dashboard-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/50 text-sm mb-1">Total Employees</p>
+                        <p class="text-3xl font-bold text-cyan-400" id="totalEmployees">
+                            <span class="loading-spinner"></span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                        <i class="fas fa-users text-cyan-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/50 text-sm mb-1">Present Today</p>
+                        <p class="text-3xl font-bold text-emerald-400" id="presentToday">
+                            <span class="loading-spinner"></span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                        <i class="fas fa-user-check text-emerald-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/50 text-sm mb-1">Late Arrivals</p>
+                        <p class="text-3xl font-bold text-yellow-400" id="lateToday">
+                            <span class="loading-spinner"></span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                        <i class="fas fa-clock text-yellow-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-white/50 text-sm mb-1">Absent</p>
+                        <p class="text-3xl font-bold text-red-400" id="absentToday">
+                            <span class="loading-spinner"></span>
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center">
+                        <i class="fas fa-user-slash text-red-400 text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="dashboard-card mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <input type="text" id="searchInput" class="input-field" placeholder="Search employees by name, ID, or department...">
+                </div>
+                <div class="flex gap-2">
+                    <select id="deptFilter" class="input-field" style="width: auto;">
+                        <option value="">All Departments</option>
+                    </select>
+                    <select id="statusFilter" class="input-field" style="width: auto;">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Table -->
+        <div class="dashboard-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full" id="employeeTable">
+                    <thead>
+                        <tr class="text-left text-xs text-white/40 uppercase tracking-wider">
+                            <th class="pb-4 pl-4">Employee</th>
+                            <th class="pb-4">ID</th>
+                            <th class="pb-4 hidden sm:table-cell">Department</th>
+                            <th class="pb-4 hidden md:table-cell">Position</th>
+                            <th class="pb-4">Status</th>
+                            <th class="pb-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeList">
+                        <tr>
+                            <td colspan="6" class="text-center py-12 text-white/30">
+                                <span class="loading-spinner" style="width: 1.5rem; height: 1.5rem;"></span>
+                                <p class="mt-2">Loading employees...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- LEAVE REQUESTS -->
+        <div class="dashboard-card mt-6" style="grid-column: 1 / -1;">
+            <div class="flex items-center justify-between mb-4">
+                <div class="text-lg font-semibold">Leave Requests</div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <select id="leave-employee-select" class="input-field" style="min-width:200px;padding:6px 10px;font-size:0.8rem;">
+                        <option value="">Select Employee</option>
+                    </select>
+                    <button onclick="showLeaveRequestForm()" class="btn-primary" style="padding:6px 14px;font-size:0.78rem;">+ Request Leave</button>
+                </div>
+            </div>
+            <div id="leave-requests-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px 0;"></div>
+        </div>
+
+        <!-- Leave Request Modal -->
+        <div id="leave-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;">
+            <div style="background:#0d1b2a;border:1px solid rgba(0,242,255,0.2);border-radius:16px;padding:2rem;width:90%;max-width:440px;">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold">New Leave Request</h3>
+                    <button onclick="closeLeaveModal()" style="background:none;border:none;color:var(--text-secondary);font-size:1.2rem;cursor:pointer;">&times;</button>
+                </div>
+                <form id="leave-form" onsubmit="submitLeaveRequest(event)">
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div>
+                            <label style="display:block;font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Employee</label>
+                            <select id="leave-emp-select" class="input-field" required style="font-size:0.8rem;"></select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Leave Type</label>
+                            <select id="leave-type" class="input-field" required style="font-size:0.8rem;">
+                                <option value="">Select type...</option>
+                                <option value="Vacation Leave">Vacation Leave</option>
+                                <option value="Sick Leave">Sick Leave</option>
+                                <option value="Maternity Leave">Maternity Leave</option>
+                                <option value="Paternity Leave">Paternity Leave</option>
+                                <option value="Solo Parent Leave">Solo Parent Leave</option>
+                                <option value="Service Incentive Leave">Service Incentive Leave</option>
+                                <option value="Bereavement Leave">Bereavement Leave</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div>
+                                <label style="display:block;font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Start Date</label>
+                                <input type="date" id="leave-start" class="input-field" required style="font-size:0.8rem;">
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">End Date</label>
+                                <input type="date" id="leave-end" class="input-field" required style="font-size:0.8rem;">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">Reason</label>
+                            <textarea id="leave-reason" class="input-field" rows="3" style="font-size:0.8rem;resize:vertical;" placeholder="Optional reason for leave..."></textarea>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:1.25rem;justify-content:flex-end;">
+                        <button type="button" onclick="closeLeaveModal()" class="btn-secondary" style="padding:8px 16px;font-size:0.8rem;">Cancel</button>
+                        <button type="submit" class="btn-primary" style="padding:8px 16px;font-size:0.8rem;">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check authentication first
+        fetch('/api/current-user')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.logged_in) {
+                    window.location.href = '/login';
+                    return;
+                }
+                initDashboard();
+            })
+            .catch(() => window.location.href = '/login');
+
+        let allEmployees = [];
+
+        function initDashboard() {
+            loadStats();
+            loadEmployees();
+            setupSearch();
+            populateEmployeeSelects();
+            loadLeaveRequests();
+        }
+
+        // Load today's attendance stats (public endpoint)
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/attendance/today');
+                if (!res.ok) throw new Error('Failed to load stats');
+                const data = await res.json();
+                
+                document.getElementById('presentToday').textContent = data.present ?? 0;
+                document.getElementById('lateToday').textContent = data.late_count ?? 0;
+                document.getElementById('absentToday').textContent = data.absent_count ?? 0;
+            } catch (e) {
+                console.error('Failed to load attendance stats:', e);
+                document.getElementById('presentToday').textContent = '--';
+                document.getElementById('lateToday').textContent = '--';
+                document.getElementById('absentToday').textContent = '--';
+            }
+
+            // Load total employees count (separate call)
+            try {
+                const res = await fetch('/api/stats');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('totalEmployees').textContent = data.total_employees ?? 0;
+                }
+            } catch (e) {
+                console.error('Failed to load stats:', e);
+                document.getElementById('totalEmployees').textContent = '--';
+            }
+        }
+
+        // Load employees from detailed endpoint
+        async function loadEmployees() {
+            try {
+                const res = await fetch('/api/employees/detailed');
+                if (!res.ok) {
+                    if (res.status === 401) { window.location.href = '/login'; return; }
+                    throw new Error('Failed to load employees');
+                }
+                const employees = await res.json();
+                allEmployees = employees;
+                renderEmployees(employees);
+            } catch (e) {
+                console.error('Failed to load employees:', e);
+                // Fallback to simple endpoint
+                try {
+                    const res = await fetch('/api/employees');
+                    if (res.ok) {
+                        const employees = await res.json();
+                        allEmployees = employees;
+                        renderEmployeesSimple(employees);
+                    } else {
+                        throw new Error('Fallback also failed');
+                    }
+                } catch (e2) {
+                    document.getElementById('employeeList').innerHTML = 
+                        '<tr><td colspan="6" class="text-center py-8 text-red-400">Failed to load employees. Please refresh.</td></tr>';
+                }
+            }
+        }
+
+        function renderEmployees(employees) {
+            const tbody = document.getElementById('employeeList');
+            
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-white/30">No employees found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = employees.map(emp => {
+                const initial = emp.full_name ? emp.full_name.charAt(0).toUpperCase() : '?';
+                const isActive = emp.active !== false && emp.active !== 0;
+                return `
+                    <tr class="employee-row" onclick="window.location.href='/profile/${emp.id}'">
+                        <td class="pl-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30">
+                                    <span class="text-sm font-bold text-cyan-400">${initial}</span>
+                                </div>
+                                <span class="font-medium">${emp.full_name || 'Unknown'}</span>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm text-white/60">${emp.employee_id || 'N/A'}</td>
+                        <td class="hidden sm:table-cell text-white/60">${emp.department_name || 'N/A'}</td>
+                        <td class="hidden md:table-cell text-white/60">${emp.position_name || 'N/A'}</td>
+                        <td>
+                            <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-secondary text-xs px-3 py-1.5" onclick="event.stopPropagation(); window.location.href='/profile/${emp.id}'">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderEmployeesSimple(employees) {
+            const tbody = document.getElementById('employeeList');
+            
+            if (employees.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-12 text-white/30">No employees found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = employees.map(emp => {
+                const initial = emp.full_name ? emp.full_name.charAt(0).toUpperCase() : '?';
+                const isActive = emp.active !== false && emp.active !== 0;
+                return `
+                    <tr class="employee-row" onclick="window.location.href='/profile/${emp.id}'">
+                        <td class="pl-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30">
+                                    <span class="text-sm font-bold text-cyan-400">${initial}</span>
+                                </div>
+                                <span class="font-medium">${emp.full_name || 'Unknown'}</span>
+                            </div>
+                        </td>
+                        <td class="font-mono text-sm text-white/60">${emp.employee_id || 'N/A'}</td>
+                        <td class="hidden sm:table-cell text-white/60">${emp.department || 'N/A'}</td>
+                        <td class="hidden md:table-cell text-white/60">${emp.position || 'N/A'}</td>
+                        <td>
+                            <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">
+                                ${isActive ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn-secondary text-xs px-3 py-1.5" onclick="event.stopPropagation(); window.location.href='/profile/${emp.id}'">
+                                View
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const deptFilter = document.getElementById('deptFilter');
+            const statusFilter = document.getElementById('statusFilter');
+
+            searchInput.addEventListener('input', filterEmployees);
+            deptFilter.addEventListener('change', filterEmployees);
+            statusFilter.addEventListener('change', filterEmployees);
+        }
+
+        function filterEmployees() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const dept = document.getElementById('deptFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = allEmployees.filter(emp => {
+                const matchSearch = !search || 
+                    (emp.full_name && emp.full_name.toLowerCase().includes(search)) ||
+                    (emp.employee_id && emp.employee_id.toLowerCase().includes(search)) ||
+                    (emp.department_name && emp.department_name.toLowerCase().includes(search));
+                
+                const matchDept = !dept || emp.department_id == dept;
+                
+                const isActive = emp.active !== false && emp.active !== 0;
+                const matchStatus = !status || 
+                    (status === 'active' && isActive) ||
+                    (status === 'inactive' && !isActive);
+
+                return matchSearch && matchDept && matchStatus;
+            });
+
+            renderEmployees(filtered);
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // ===== LEAVE REQUESTS =====
+
+        function populateEmployeeSelects() {
+            fetch('/api/employees/detailed')
+                .then(r => r.json())
+                .then(employees => {
+                    const options = employees.filter(e => e.active !== false && e.active !== 0).map(e =>
+                        `<option value="${e.id}">${e.full_name} (${e.employee_id})</option>`
+                    ).join('');
+                    const html = '<option value="">Select Employee</option>' + options;
+                    document.getElementById('leave-employee-select').innerHTML = html;
+                    document.getElementById('leave-emp-select').innerHTML = html;
+                })
+                .catch(() => {});
+        }
+
+        function loadLeaveRequests() {
+            const empId = document.getElementById('leave-employee-select').value;
+            const url = empId ? `/api/leave-requests/list?employee_id=${empId}` : '/api/leave-requests/list';
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('leave-requests-list');
+                    if (!data.success || !data.requests || data.requests.length === 0) {
+                        container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:2rem;">No leave requests found.</div>';
+                        return;
+                    }
+                    container.innerHTML = data.requests.map(req => {
+                        const statusColor = req.status === 'Approved' ? 'var(--status-success)' :
+                                            req.status === 'Rejected' ? '#ff4d4d' : '#f59e0b';
+                        return `
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:10px;">
+                                <div style="display:flex;flex-direction:column;gap:2px;">
+                                    <span style="font-weight:600;font-size:0.9rem;">${req.full_name || 'Unknown'}</span>
+                                    <span style="font-size:0.75rem;color:var(--text-secondary);">${req.leave_type} &middot; ${req.start_date} to ${req.end_date}</span>
+                                    ${req.reason ? `<span style="font-size:0.72rem;color:var(--text-muted);">${req.reason}</span>` : ''}
+                                </div>
+                                <span style="font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:8px;background:${statusColor}22;color:${statusColor};border:1px solid ${statusColor}44;">${req.status}</span>
+                            </div>
+                        `;
+                    }).join('');
+                })
+                .catch(() => {
+                    document.getElementById('leave-requests-list').innerHTML =
+                        '<div style="text-align:center;color:#ff4d4d;padding:1rem;">Failed to load leave requests.</div>';
+                });
+        }
+
+        function showLeaveRequestForm() {
+            document.getElementById('leave-modal').style.display = 'flex';
+            populateEmployeeSelects();
+        }
+
+        function closeLeaveModal() {
+            document.getElementById('leave-modal').style.display = 'none';
+            document.getElementById('leave-form').reset();
+        }
+
+        async function submitLeaveRequest(e) {
+            e.preventDefault();
+            const employee_id = parseInt(document.getElementById('leave-emp-select').value);
+            const leave_type = document.getElementById('leave-type').value;
+            const start_date = document.getElementById('leave-start').value;
+            const end_date = document.getElementById('leave-end').value;
+            const reason = document.getElementById('leave-reason').value;
+
+            if (!employee_id || !leave_type || !start_date || !end_date) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/leave-requests/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employee_id, leave_type, start_date, end_date, reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeLeaveModal();
+                    loadLeaveRequests();
+                    alert('Leave request submitted successfully!');
+                } else {
+                    alert(data.message || 'Failed to submit leave request.');
+                }
+            } catch (err) {
+                alert('Error submitting leave request: ' + err.message);
+            }
+        }
+
+        document.getElementById('leave-employee-select').addEventListener('change', loadLeaveRequests);
+    </script>
+</body>
+</html>

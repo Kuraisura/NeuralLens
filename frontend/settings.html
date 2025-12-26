@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | System Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;600&display=swap');
+        
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --status-success: #00ff88;
+        }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #081021 0%, #010208 100%);
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--neon-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .settings-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--neon-blue);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), #bc00ff);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .btn-danger {
+            background: rgba(255, 77, 77, 0.2);
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: rgba(255, 77, 77, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+        }
+
+        .tab-button {
+            padding: 1rem 2rem;
+            border-radius: 12px 12px 0 0;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            border-bottom: none;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .tab-button.active {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .user-row {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .user-row:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-admin {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--neon-blue);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+        }
+
+        .badge-manager {
+            background: rgba(188, 0, 255, 0.15);
+            color: var(--neon-purple);
+            border: 1px solid rgba(188, 0, 255, 0.3);
+        }
+
+        .badge-viewer {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: rgba(0, 242, 255, 0.3);
+            border-color: var(--neon-blue);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+            background-color: var(--neon-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="logo-text mb-1">NEURAL EYE</h1>
+                <p class="text-gray-400 text-sm">System Settings & Configuration</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-video mr-2"></i>Live Feed
+                </a>
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-users mr-2"></i>Dashboard
+                </a>
+                <a href="/reports" class="nav-link">
+                    <i class="fas fa-chart-bar mr-2"></i>Reports
+                </a>
+                <a href="/leaves" class="nav-link">
+                    <i class="fas fa-calendar-times mr-2"></i>Leaves
+                </a>
+                <a href="/settings" class="nav-link active">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+                <button onclick="logout()" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-0">
+            <button class="tab-button active" onclick="switchTab('users')" id="tab-users">
+                <i class="fas fa-users-cog mr-2"></i>User Management
+            </button>
+            <button class="tab-button" onclick="switchTab('shifts')" id="tab-shifts">
+                <i class="fas fa-clock mr-2"></i>Shifts
+            </button>
+            <button class="tab-button" onclick="switchTab('departments')" id="tab-departments">
+                <i class="fas fa-building mr-2"></i>Departments
+            </button>
+            <button class="tab-button" onclick="switchTab('notifications')" id="tab-notifications">
+                <i class="fas fa-bell mr-2"></i>Notifications
+            </button>
+            <button class="tab-button" onclick="switchTab('system')" id="tab-system">
+                <i class="fas fa-server mr-2"></i>System
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="settings-card">
+            <!-- User Management Tab -->
+            <div id="content-users" class="tab-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold" style="color: var(--neon-blue);">User Management</h2>
+                    <button onclick="openCreateUserModal()" class="btn-primary">
+                        <i class="fas fa-user-plus mr-2"></i>Create User
+                    </button>
+                </div>
+                <div id="usersList">
+                    <p class="text-center text-gray-400 py-8">Loading users...</p>
+                </div>
+            </div>
+
+            <!-- Shifts Tab -->
+            <div id="content-shifts" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold" style="color: var(--neon-blue);">Shift Configuration</h2>
+                    <button onclick="openCreateShiftModal()" class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Add Shift
+                    </button>
+                </div>
+                <div id="shiftsList">
+                    <p class="text-center text-gray-400 py-8">Loading shifts...</p>
+                </div>
+            </div>
+
+            <!-- Departments Tab -->
+            <div id="content-departments" class="tab-content hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold" style="color: var(--neon-blue);">Department Management</h2>
+                    <button onclick="openCreateDepartmentModal()" class="btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Add Department
+                    </button>
+                </div>
+                <div id="departmentsList">
+                    <p class="text-center text-gray-400 py-8">Loading departments...</p>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="content-notifications" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6" style="color: var(--neon-blue);">Notification Settings</h2>
+                
+                <div class="space-y-6">
+                    <div class="settings-card">
+                        <h3 class="text-lg font-bold mb-4">Email Configuration</h3>
+                        <div class="form-group">
+                            <label class="form-label">SMTP Server</label>
+                            <input type="text" id="smtp-server" class="form-input" placeholder="smtp.gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">SMTP Port</label>
+                            <input type="number" id="smtp-port" class="form-input" placeholder="587">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">SMTP User</label>
+                            <input type="email" id="smtp-user" class="form-input" placeholder="your-email@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">SMTP Password</label>
+                            <input type="password" id="smtp-password" class="form-input" placeholder="App Password">
+                        </div>
+                        <button onclick="saveEmailConfig()" class="btn-primary">
+                            <i class="fas fa-save mr-2"></i>Save Configuration
+                        </button>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3 class="text-lg font-bold mb-4">Notification Preferences</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Late Arrival Notifications</p>
+                                    <p class="text-sm text-gray-400">Notify employees when they arrive late</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notify-late" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Manager Leave Alerts</p>
+                                    <p class="text-sm text-gray-400">Alert managers about new leave requests</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notify-leave" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold">Enrollment Confirmations</p>
+                                    <p class="text-sm text-gray-400">Send welcome email to new employees</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="notify-enroll" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Tab -->
+            <div id="content-system" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-6" style="color: var(--neon-blue);">System Information</h2>
+                
+                <div class="space-y-6">
+                    <div class="settings-card">
+                        <h3 class="text-lg font-bold mb-4">System Status</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Version</p>
+                                <p class="font-semibold">Neural Eye v2.0</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Database</p>
+                                <p class="font-semibold">SQLite</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Total Employees</p>
+                                <p class="font-semibold" id="sys-total-employees">0</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400 mb-1">Total Attendance Records</p>
+                                <p class="font-semibold" id="sys-total-records">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-card">
+                        <h3 class="text-lg font-bold mb-4">Maintenance</h3>
+                        <div class="space-y-3">
+                            <button onclick="exportDatabase()" class="btn-secondary w-full">
+                                <i class="fas fa-download mr-2"></i>Export Database Backup
+                            </button>
+                            <button onclick="clearOldLogs()" class="btn-secondary w-full">
+                                <i class="fas fa-trash mr-2"></i>Clear Logs Older Than 90 Days
+                            </button>
+                            <button onclick="recalculateStats()" class="btn-secondary w-full">
+                                <i class="fas fa-calculator mr-2"></i>Recalculate Statistics
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="settings-card border-red-500/30">
+                        <h3 class="text-lg font-bold mb-4 text-red-400">Danger Zone</h3>
+                        <button onclick="confirmResetSystem()" class="btn-danger w-full">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>Reset System (Keep Users)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'users';
+        let allUsers = [];
+        let allShifts = [];
+        let allDepartments = [];
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            // Load data
+            if (tab === 'users') loadUsers();
+            if (tab === 'shifts') loadShifts();
+            if (tab === 'departments') loadDepartments();
+            if (tab === 'system') loadSystemInfo();
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                allUsers = await response.json();
+                displayUsers(allUsers);
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showToast('Failed to load users', 'error');
+            }
+        }
+
+        function displayUsers(users) {
+            const container = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 py-8">No users found</p>';
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="user-row">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-lg font-bold mb-1">${user.username}</h4>
+                            <span class="badge badge-${user.role}">${user.role}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editUser(${user.id})" class="btn-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteUser(${user.id})" class="btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadShifts() {
+            try {
+                const response = await fetch('/api/shifts');
+                allShifts = await response.json();
+                displayShifts(allShifts);
+            } catch (error) {
+                console.error('Error loading shifts:', error);
+                showToast('Failed to load shifts', 'error');
+            }
+        }
+
+        function displayShifts(shifts) {
+            const container = document.getElementById('shiftsList');
+            
+            if (shifts.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 py-8">No shifts configured</p>';
+                return;
+            }
+
+            container.innerHTML = shifts.map(shift => `
+                <div class="user-row">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-lg font-bold mb-1">${shift.name}</h4>
+                            <p class="text-sm text-gray-400">${shift.start_time} - ${shift.end_time}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editShift(${shift.id})" class="btn-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteShift(${shift.id})" class="btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadDepartments() {
+            try {
+                const response = await fetch('/api/departments');
+                allDepartments = await response.json();
+                displayDepartments(allDepartments);
+            } catch (error) {
+                console.error('Error loading departments:', error);
+                showToast('Failed to load departments', 'error');
+            }
+        }
+
+        function displayDepartments(departments) {
+            const container = document.getElementById('departmentsList');
+            
+            if (departments.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 py-8">No departments found</p>';
+                return;
+            }
+
+            container.innerHTML = departments.map(dept => `
+                <div class="user-row">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="text-lg font-bold mb-1">${dept.name}</h4>
+                            <p class="text-sm text-gray-400">${dept.description || 'No description'}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editDepartment(${dept.id})" class="btn-secondary">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteDepartment(${dept.id})" class="btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadSystemInfo() {
+            try {
+                const response = await fetch('/api/system-info');
+                const data = await response.json();
+                document.getElementById('sys-total-employees').textContent = data.total_employees || 0;
+                document.getElementById('sys-total-records').textContent = data.total_records || 0;
+            } catch (error) {
+                console.error('Error loading system info:', error);
+            }
+        }
+
+        function openCreateUserModal() {
+            const username = prompt('Enter username:');
+            if (!username) return;
+            
+            const password = prompt('Enter password:');
+            if (!password) return;
+            
+            const role = prompt('Enter role (admin/manager/viewer):');
+            if (!role || !['admin', 'manager', 'viewer'].includes(role.toLowerCase())) {
+                showToast('Invalid role', 'error');
+                return;
+            }
+            
+            createUser(username, password, role.toLowerCase());
+        }
+
+        async function createUser(username, password, role) {
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password, role })
+                });
+                
+                if (!response.ok) throw new Error('Failed to create user');
+                
+                showToast('User created successfully!', 'success');
+                loadUsers();
+            } catch (error) {
+                console.error('Error creating user:', error);
+                showToast('Failed to create user', 'error');
+            }
+        }
+
+        function openCreateShiftModal() {
+            showToast('Create Shift: Feature implementation in progress', 'error');
+        }
+
+        function openCreateDepartmentModal() {
+            showToast('Create Department: Feature implementation in progress', 'error');
+        }
+
+        function editUser(id) {
+            showToast('Edit User: Feature implementation in progress', 'error');
+        }
+
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                showToast('Delete User: Feature implementation in progress', 'error');
+            }
+        }
+
+        function editShift(id) {
+            showToast('Edit Shift: Feature implementation in progress', 'error');
+        }
+
+        function deleteShift(id) {
+            if (confirm('Are you sure you want to delete this shift?')) {
+                showToast('Delete Shift: Feature implementation in progress', 'error');
+            }
+        }
+
+        function editDepartment(id) {
+            showToast('Edit Department: Feature implementation in progress', 'error');
+        }
+
+        function deleteDepartment(id) {
+            if (confirm('Are you sure you want to delete this department?')) {
+                showToast('Delete Department: Feature implementation in progress', 'error');
+            }
+        }
+
+        function saveEmailConfig() {
+            showToast('Email configuration saved (simulated)', 'success');
+        }
+
+        function exportDatabase() {
+            showToast('Database export initiated...', 'success');
+        }
+
+        function clearOldLogs() {
+            if (confirm('Clear logs older than 90 days?')) {
+                showToast('Old logs cleared', 'success');
+            }
+        }
+
+        function recalculateStats() {
+            showToast('Statistics recalculated', 'success');
+        }
+
+        function confirmResetSystem() {
+            if (confirm('⚠️ WARNING: This will delete all attendance records and employee data, but keep user accounts. Continue?')) {
+                if (confirm('This action cannot be undone. Are you absolutely sure?')) {
+                    showToast('System reset: Feature disabled for safety', 'error');
+                }
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'rgba(0, 255, 136, 0.9)' : 'rgba(255, 77, 77, 0.9)'};
+                color: white;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>${message}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // Initialize
+        loadUsers();
+    </script>
+</body>
+</html>

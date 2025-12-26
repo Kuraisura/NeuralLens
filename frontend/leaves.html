@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | Leave Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;600&display=swap');
+        
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --status-success: #00ff88;
+        }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 50%, #081021 0%, #010208 100%);
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--neon-blue));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .leave-card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .leave-card:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(188, 0, 255, 0.05));
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .leave-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .leave-item:hover {
+            border-color: rgba(0, 242, 255, 0.3);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), #bc00ff);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .btn-approve {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .btn-approve:hover {
+            background: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-reject {
+            background: rgba(255, 77, 77, 0.2);
+            border: 1px solid #ff4d4d;
+            color: #ff4d4d;
+        }
+
+        .btn-reject:hover {
+            background: rgba(255, 77, 77, 0.3);
+            box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
+        }
+
+        .nav-link {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--neon-blue);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-pending {
+            background: rgba(255, 204, 0, 0.15);
+            color: #ffcc00;
+            border: 1px solid rgba(255, 204, 0, 0.4);
+        }
+
+        .badge-approved {
+            background: rgba(0, 255, 136, 0.15);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.4);
+        }
+
+        .badge-rejected {
+            background: rgba(255, 77, 77, 0.15);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 77, 77, 0.4);
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .tab-button.active {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(8, 16, 33, 0.95);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.5rem;
+            font-size: 14px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: white;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="logo-text mb-1">NEURAL EYE</h1>
+                <p class="text-gray-400 text-sm">Leave Management</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" class="nav-link">
+                    <i class="fas fa-video mr-2"></i>Live Feed
+                </a>
+                <a href="/enroll" class="nav-link">
+                    <i class="fas fa-user-plus mr-2"></i>Enroll
+                </a>
+                <a href="/reports" class="nav-link">
+                    <i class="fas fa-chart-bar mr-2"></i>Reports
+                </a>
+                <a href="/dashboard" class="nav-link">
+                    <i class="fas fa-users mr-2"></i>Employees
+                </a>
+                <a href="/leaves" class="nav-link active">
+                    <i class="fas fa-calendar-times mr-2"></i>Leaves
+                </a>
+                <button onclick="logout()" class="btn-secondary">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Summary Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="stat-box">
+                <div class="text-sm text-gray-400 mb-2">Pending Requests</div>
+                <div class="text-4xl font-bold mb-2" style="color: #ffcc00;" id="pendingCount">0</div>
+                <div class="text-xs text-gray-500">Awaiting approval</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-gray-400 mb-2">Approved This Month</div>
+                <div class="text-4xl font-bold mb-2" style="color: var(--status-success);" id="approvedCount">0</div>
+                <div class="text-xs text-gray-500">Granted leaves</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-gray-400 mb-2">Rejected This Month</div>
+                <div class="text-4xl font-bold mb-2" style="color: #ff4d4d;" id="rejectedCount">0</div>
+                <div class="text-xs text-gray-500">Denied requests</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-gray-400 mb-2">On Leave Today</div>
+                <div class="text-4xl font-bold mb-2" style="color: var(--neon-purple);" id="todayCount">0</div>
+                <div class="text-xs text-gray-500">Currently absent</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-3 mb-6">
+            <button class="tab-button active" onclick="switchTab('pending')" id="tab-pending">
+                <i class="fas fa-clock mr-2"></i>Pending
+                <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-yellow-500/20 text-yellow-400" id="pending-badge">0</span>
+            </button>
+            <button class="tab-button" onclick="switchTab('approved')" id="tab-approved">
+                <i class="fas fa-check-circle mr-2"></i>Approved
+            </button>
+            <button class="tab-button" onclick="switchTab('rejected')" id="tab-rejected">
+                <i class="fas fa-times-circle mr-2"></i>Rejected
+            </button>
+            <button class="tab-button" onclick="switchTab('all')" id="tab-all">
+                <i class="fas fa-list mr-2"></i>All Requests
+            </button>
+        </div>
+
+        <!-- Leave Requests List -->
+        <div class="leave-card">
+            <div id="leavesList">
+                <div class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-4" style="color: var(--neon-blue);"></i>
+                    <p class="text-gray-400">Loading leave requests...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Approve/Reject Modal -->
+        <div id="decisionModal" class="modal">
+            <div class="modal-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold" style="color: var(--neon-blue);" id="modalTitle">
+                        <i class="fas fa-gavel mr-2"></i>Leave Decision
+                    </h2>
+                    <button onclick="closeDecisionModal()" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <div id="modalLeaveInfo" class="mb-6 p-4 rounded-lg" style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2);">
+                    <!-- Leave info populated by JS -->
+                </div>
+
+                <form id="decisionForm" onsubmit="submitDecision(event)">
+                    <input type="hidden" id="leaveIdInput">
+                    <input type="hidden" id="decisionInput">
+
+                    <div class="form-group">
+                        <label class="form-label">Decision Notes</label>
+                        <textarea id="decisionNotes" class="form-textarea" placeholder="Add notes about your decision (optional)..."></textarea>
+                    </div>
+
+                    <div class="flex gap-3 mt-6">
+                        <button type="submit" class="btn-primary flex-1">
+                            <i class="fas fa-check mr-2"></i>Submit Decision
+                        </button>
+                        <button type="button" onclick="closeDecisionModal()" class="btn-secondary">
+                            <i class="fas fa-times mr-2"></i>Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allLeaves = [];
+        let currentTab = 'pending';
+        let currentLeave = null;
+
+        async function loadLeaves() {
+            try {
+                const response = await fetch('/api/leave-requests');
+                const data = await response.json();
+                allLeaves = Array.isArray(data) ? data : [];
+                updateStatistics();
+                displayLeaves(currentTab);
+            } catch (error) {
+                console.error('Error loading leaves:', error);
+                allLeaves = [];
+                updateStatistics();
+                displayLeaves(currentTab);
+                showToast('Failed to load leave requests', 'error');
+            }
+        }
+
+        function updateStatistics() {
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+
+            const pending = allLeaves.filter(l => l.status === 'Pending').length;
+            const approved = allLeaves.filter(l => {
+                const date = new Date(l.request_date);
+                return l.status === 'Approved' && date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+            }).length;
+            const rejected = allLeaves.filter(l => {
+                const date = new Date(l.request_date);
+                return l.status === 'Rejected' && date.getMonth() === thisMonth && date.getFullYear() === thisYear;
+            }).length;
+            const today = allLeaves.filter(l => {
+                const start = new Date(l.start_date);
+                const end = new Date(l.end_date);
+                return l.status === 'Approved' && start <= now && end >= now;
+            }).length;
+
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+            document.getElementById('todayCount').textContent = today;
+            document.getElementById('pending-badge').textContent = pending;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            
+            displayLeaves(tab);
+        }
+
+        function displayLeaves(filter) {
+            const container = document.getElementById('leavesList');
+            
+            let filtered = allLeaves;
+            if (filter === 'pending') {
+                filtered = allLeaves.filter(l => l.status === 'Pending');
+            } else if (filter === 'approved') {
+                filtered = allLeaves.filter(l => l.status === 'Approved');
+            } else if (filter === 'rejected') {
+                filtered = allLeaves.filter(l => l.status === 'Rejected');
+            }
+
+            // Sort by request date (newest first)
+            filtered.sort((a, b) => new Date(b.request_date) - new Date(a.request_date));
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-calendar-check text-4xl mb-4 text-gray-600"></i>
+                        <p class="text-gray-400">No ${filter !== 'all' ? filter : ''} leave requests found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(leave => createLeaveCard(leave)).join('');
+        }
+
+        function createLeaveCard(leave) {
+            const statusBadge = getStatusBadge(leave.status);
+            const typeIcon = getTypeIcon(leave.leave_type);
+            const canManage = leave.status === 'Pending'; // Only pending can be approved/rejected
+
+            const startDate = new Date(leave.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const endDate = new Date(leave.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const requestDate = new Date(leave.request_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            const daysDiff = Math.ceil((new Date(leave.end_date) - new Date(leave.start_date)) / (1000 * 60 * 60 * 24)) + 1;
+
+            return `
+                <div class="leave-item">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-lg font-bold mb-1">${leave.employee_name}</h3>
+                            <p class="text-sm text-gray-400">${leave.department || 'N/A'} • ${leave.position || 'N/A'}</p>
+                        </div>
+                        ${statusBadge}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-3">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Leave Type</p>
+                            <p class="text-sm font-semibold">
+                                <i class="${typeIcon} mr-2" style="color: var(--neon-blue);"></i>${leave.leave_type}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Duration</p>
+                            <p class="text-sm font-semibold">${daysDiff} day${daysDiff > 1 ? 's' : ''}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">From</p>
+                            <p class="text-sm font-semibold">${startDate}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">To</p>
+                            <p class="text-sm font-semibold">${endDate}</p>
+                        </div>
+                    </div>
+
+                    ${leave.reason ? `
+                        <div class="mb-3 p-3 rounded-lg" style="background: rgba(255, 255, 255, 0.02);">
+                            <p class="text-xs text-gray-500 mb-1">Reason</p>
+                            <p class="text-sm">${leave.reason}</p>
+                        </div>
+                    ` : ''}
+
+                    ${leave.decision_notes ? `
+                        <div class="mb-3 p-3 rounded-lg" style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2);">
+                            <p class="text-xs text-gray-500 mb-1">Decision Notes</p>
+                            <p class="text-sm">${leave.decision_notes}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="flex justify-between items-center text-xs text-gray-500 ${canManage ? 'mb-3' : ''}">
+                        <span>Requested: ${requestDate}</span>
+                        ${leave.approved_by_name ? `<span>By: ${leave.approved_by_name}</span>` : ''}
+                    </div>
+
+                    ${canManage ? `
+                        <div class="flex gap-2 pt-3 border-t border-gray-700">
+                            <button onclick="approveLeave(${leave.id})" class="btn-approve flex-1">
+                                <i class="fas fa-check mr-2"></i>Approve
+                            </button>
+                            <button onclick="rejectLeave(${leave.id})" class="btn-reject flex-1">
+                                <i class="fas fa-times mr-2"></i>Reject
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function getStatusBadge(status) {
+            const badges = {
+                'Pending': '<span class="badge badge-pending"><i class="fas fa-clock mr-1"></i>Pending</span>',
+                'Approved': '<span class="badge badge-approved"><i class="fas fa-check mr-1"></i>Approved</span>',
+                'Rejected': '<span class="badge badge-rejected"><i class="fas fa-times mr-1"></i>Rejected</span>'
+            };
+            return badges[status] || status;
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                'SICK': 'fas fa-heartbeat',
+                'VACATION': 'fas fa-umbrella-beach',
+                'PERSONAL': 'fas fa-user',
+                'EMERGENCY': 'fas fa-exclamation-triangle'
+            };
+            return icons[type] || 'fas fa-calendar-times';
+        }
+
+        function approveLeave(leaveId) {
+            currentLeave = allLeaves.find(l => l.id === leaveId);
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-check-circle mr-2" style="color: #00ff88;"></i>Approve Leave Request';
+            document.getElementById('leaveIdInput').value = leaveId;
+            document.getElementById('decisionInput').value = 'Approved';
+            populateModalInfo(currentLeave);
+            document.getElementById('decisionModal').classList.add('active');
+        }
+
+        function rejectLeave(leaveId) {
+            currentLeave = allLeaves.find(l => l.id === leaveId);
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-times-circle mr-2" style="color: #ff4d4d;"></i>Reject Leave Request';
+            document.getElementById('leaveIdInput').value = leaveId;
+            document.getElementById('decisionInput').value = 'Rejected';
+            populateModalInfo(currentLeave);
+            document.getElementById('decisionModal').classList.add('active');
+        }
+
+        function populateModalInfo(leave) {
+            const startDate = new Date(leave.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const endDate = new Date(leave.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            const daysDiff = Math.ceil((new Date(leave.end_date) - new Date(leave.start_date)) / (1000 * 60 * 60 * 24)) + 1;
+
+            document.getElementById('modalLeaveInfo').innerHTML = `
+                <p class="text-lg font-bold mb-2">${leave.employee_name}</p>
+                <p class="text-sm text-gray-400 mb-3">${leave.leave_type} Leave</p>
+                <p class="text-sm mb-1"><strong>Duration:</strong> ${daysDiff} day${daysDiff > 1 ? 's' : ''}</p>
+                <p class="text-sm mb-1"><strong>Period:</strong> ${startDate} - ${endDate}</p>
+                ${leave.reason ? `<p class="text-sm mt-3"><strong>Reason:</strong><br>${leave.reason}</p>` : ''}
+            `;
+        }
+
+        function closeDecisionModal() {
+            document.getElementById('decisionModal').classList.remove('active');
+            document.getElementById('decisionNotes').value = '';
+            currentLeave = null;
+        }
+
+        async function submitDecision(event) {
+            event.preventDefault();
+
+            const leaveId = document.getElementById('leaveIdInput').value;
+            const decision = document.getElementById('decisionInput').value;
+            const notes = document.getElementById('decisionNotes').value;
+
+            try {
+                const response = await fetch(`/api/leaves/${leaveId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: decision,
+                        decision_notes: notes
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to process decision');
+
+                showToast(`Leave request ${decision.toLowerCase()} successfully!`, 'success');
+                closeDecisionModal();
+                loadLeaves(); // Reload data
+            } catch (error) {
+                console.error('Error submitting decision:', error);
+                showToast('Failed to process decision: ' + error.message, 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? 'rgba(0, 255, 136, 0.9)' : 'rgba(255, 77, 77, 0.9)'};
+                color: white;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>${message}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(400px); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(400px); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+
+        // Initialize
+        loadLeaves();
+    </script>
+</body>
+</html>

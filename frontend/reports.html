@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | Reports & Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(0, 242, 255, 0.12);
+            --border-hover: rgba(0, 242, 255, 0.3);
+            --status-success: #00ff88;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(ellipse at 50% 30%, #0a1628 0%, #010208 70%);
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-blue) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .report-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .report-card:hover { border-color: var(--border-hover); }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(188, 0, 255, 0.05));
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .input-field {
+            background: rgba(8, 16, 33, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: white;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .nav-link {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(0, 242, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            background: rgba(0, 242, 255, 0.15);
+            color: var(--neon-blue);
+        }
+
+        .report-row {
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(0, 242, 255, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+        .badge-late { background: rgba(255, 204, 0, 0.1); color: #ffcc00; border: 1px solid rgba(255, 204, 0, 0.3); }
+        .badge-absent { background: rgba(255, 77, 77, 0.1); color: #ff4d4d; border: 1px solid rgba(255, 77, 77, 0.3); }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .header-nav { flex-wrap: wrap; gap: 0.5rem; }
+            .header-nav .nav-link { font-size: 0.75rem; padding: 0.5rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen p-4 md:p-6">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="logo-text mb-1">NEURAL EYE</h1>
+                <p class="text-white/50 text-sm">Reports & Analytics</p>
+            </div>
+            <div class="header-nav flex items-center gap-2 flex-wrap">
+                <a href="/" class="nav-link"><i class="fas fa-video"></i><span class="hidden sm:inline">Live Feed</span></a>
+                <a href="/enroll" class="nav-link"><i class="fas fa-user-plus"></i><span class="hidden sm:inline">Enroll</span></a>
+                <a href="/reports" class="nav-link active"><i class="fas fa-chart-bar"></i><span class="hidden sm:inline">Reports</span></a>
+                <a href="/dashboard" class="nav-link"><i class="fas fa-users"></i><span class="hidden sm:inline">Employees</span></a>
+                <button onclick="logout()" class="btn-secondary"><i class="fas fa-sign-out-alt"></i><span class="hidden sm:inline">Logout</span></button>
+            </div>
+        </header>
+
+        <!-- Summary Statistics -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="stat-box">
+                <div class="text-sm text-white/50 mb-2">Total Employees</div>
+                <div class="text-4xl font-bold mb-2" style="color: var(--neon-blue);" id="totalEmployees">--</div>
+                <div class="text-xs text-white/40">Active in system</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-white/50 mb-2">Today's Attendance</div>
+                <div class="text-4xl font-bold mb-2" style="color: var(--status-success);" id="todayAttendance">--</div>
+                <div class="text-xs text-white/40" id="attendancePercent">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-white/50 mb-2">This Week</div>
+                <div class="text-4xl font-bold mb-2" style="color: #ffcc00;" id="weekAttendance">--</div>
+                <div class="text-xs text-white/40">Total check-ins</div>
+            </div>
+            <div class="stat-box">
+                <div class="text-sm text-white/50 mb-2">This Month</div>
+                <div class="text-4xl font-bold mb-2" style="color: var(--neon-purple);" id="monthAttendance">--</div>
+                <div class="text-xs text-white/40">Total check-ins</div>
+            </div>
+        </div>
+
+        <!-- Filters & Controls -->
+        <div class="report-card mb-6">
+            <h3 class="text-lg font-bold mb-4" style="color: var(--neon-blue);">
+                <i class="fas fa-filter mr-2"></i>Report Filters
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm text-white/50 mb-2">Start Date</label>
+                    <input type="date" id="startDate" class="input-field">
+                </div>
+                <div>
+                    <label class="block text-sm text-white/50 mb-2">End Date</label>
+                    <input type="date" id="endDate" class="input-field">
+                </div>
+                <div>
+                    <label class="block text-sm text-white/50 mb-2">Department</label>
+                    <select id="deptFilter" class="input-field">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="generateReport()" class="btn-primary flex-1">
+                        <i class="fas fa-search mr-2"></i>Generate
+                    </button>
+                    <button onclick="exportReport()" class="btn-secondary">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="report-card">
+                <h3 class="text-lg font-bold mb-4" style="color: var(--neon-blue);">
+                    <i class="fas fa-chart-pie mr-2"></i>Attendance Status Distribution
+                </h3>
+                <div class="chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            <div class="report-card">
+                <h3 class="text-lg font-bold mb-4" style="color: var(--neon-blue);">
+                    <i class="fas fa-chart-line mr-2"></i>Daily Attendance Trend
+                </h3>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Report Table -->
+        <div class="report-card">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold" style="color: var(--neon-blue);">
+                    <i class="fas fa-table mr-2"></i>Detailed Attendance Report
+                </h3>
+                <span class="text-white/50 text-sm" id="reportCount">0 records</span>
+            </div>
+            <div id="reportTable">
+                <div class="text-center text-white/40 py-12">
+                    <i class="fas fa-chart-bar text-4xl mb-4 block opacity-30"></i>
+                    <p>Select date range and click Generate to view report</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check auth first
+        fetch('/api/current-user').then(r => r.json()).then(data => {
+            if (!data.logged_in) {
+                window.location.href = '/login';
+                return;
+            }
+            initReports();
+        }).catch(() => window.location.href = '/login');
+
+        let statusChart = null, trendChart = null;
+        let currentReportData = [];
+        let chartsInitialized = false;
+
+        function initReports() {
+            setDefaultDates();
+            loadSummary();
+            loadDepartments();
+            initCharts();
+        }
+
+        function setDefaultDates() {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            document.getElementById('endDate').valueAsDate = endDate;
+            document.getElementById('startDate').valueAsDate = startDate;
+        }
+
+        function initCharts() {
+            if (chartsInitialized) return;
+            chartsInitialized = true;
+
+            // Initialize empty charts
+            const statusCtx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        data: [1],
+                        backgroundColor: ['rgba(255, 255, 255, 0.1)'],
+                        borderColor: 'rgba(0, 242, 255, 0.2)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: 'rgba(255, 255, 255, 0.7)', padding: 20, font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        label: 'Attendance Count',
+                        data: [0],
+                        borderColor: 'rgba(0, 242, 255, 1)',
+                        backgroundColor: 'rgba(0, 242, 255, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0, 242, 255, 0.1)' }, ticks: { color: 'rgba(255, 255, 255, 0.7)' } },
+                        x: { grid: { color: 'rgba(0, 242, 255, 0.1)' }, ticks: { color: 'rgba(255, 255, 255, 0.7)' } }
+                    },
+                    plugins: { legend: { labels: { color: 'rgba(255, 255, 255, 0.7)' } } }
+                }
+            });
+        }
+
+        async function loadSummary() {
+            try {
+                const res = await fetch('/api/reports/summary');
+                if (!res.ok) {
+                    if (res.status === 401) { window.location.href = '/login'; return; }
+                    throw new Error('Failed to load summary');
+                }
+                const data = await res.json();
+
+                document.getElementById('totalEmployees').textContent = data.total_employees || 0;
+                document.getElementById('todayAttendance').textContent = data.today_attendance || 0;
+
+                const rate = data.total_employees > 0 
+                    ? Math.round((data.today_attendance / data.total_employees) * 100) 
+                    : 0;
+                document.getElementById('attendancePercent').textContent = `${rate}% attendance rate`;
+
+                // Calculate totals from statistics objects
+                const weekTotal = Object.values(data.this_week || {}).reduce((a, b) => a + b, 0);
+                const monthTotal = Object.values(data.this_month || {}).reduce((a, b) => a + b, 0);
+
+                document.getElementById('weekAttendance').textContent = weekTotal;
+                document.getElementById('monthAttendance').textContent = monthTotal;
+
+                // Update status chart with month data
+                updateStatusChart(data.this_month || {});
+
+            } catch (error) {
+                console.error('Error loading summary:', error);
+            }
+        }
+
+        async function loadDepartments() {
+            try {
+                const res = await fetch('/api/departments');
+                if (!res.ok) return;
+                const departments = await res.json();
+                const select = document.getElementById('deptFilter');
+                // Clear existing options except first
+                while (select.options.length > 1) select.remove(1);
+                departments.forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+        }
+
+        function updateStatusChart(data) {
+            if (!statusChart) return;
+
+            const keys = Object.keys(data);
+            const values = Object.values(data);
+
+            if (keys.length === 0 || values.every(v => v === 0)) {
+                statusChart.data.labels = ['No Data'];
+                statusChart.data.datasets[0].data = [1];
+                statusChart.data.datasets[0].backgroundColor = ['rgba(255, 255, 255, 0.1)'];
+            } else {
+                statusChart.data.labels = keys;
+                statusChart.data.datasets[0].data = values;
+                statusChart.data.datasets[0].backgroundColor = [
+                    'rgba(0, 255, 136, 0.8)',
+                    'rgba(255, 204, 0, 0.8)',
+                    'rgba(255, 77, 77, 0.8)',
+                    'rgba(188, 0, 255, 0.8)'
+                ].slice(0, keys.length);
+            }
+            statusChart.update();
+        }
+
+        async function generateReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const deptId = document.getElementById('deptFilter').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            try {
+                let url = `/api/reports/attendance?start_date=${startDate}&end_date=${endDate}`;
+                if (deptId) url += `&department_id=${deptId}`;
+
+                const res = await fetch(url);
+                if (!res.ok) {
+                    if (res.status === 401) { window.location.href = '/login'; return; }
+                    throw new Error('Failed to generate report');
+                }
+                const data = await res.json();
+
+                displayReportTable(data);
+                currentReportData = data;
+
+                // Update trend chart
+                const dailyCounts = aggregateByDate(data);
+                updateTrendChart(dailyCounts.labels, dailyCounts.values);
+
+            } catch (error) {
+                console.error('Error generating report:', error);
+                alert('Error generating report');
+            }
+        }
+
+        function aggregateByDate(data) {
+            const counts = {};
+            data.forEach(record => {
+                const date = record.date;
+                counts[date] = (counts[date] || 0) + 1;
+            });
+
+            const sortedDates = Object.keys(counts).sort();
+            return {
+                labels: sortedDates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+                values: sortedDates.map(d => counts[d])
+            };
+        }
+
+        function updateTrendChart(labels, data) {
+            if (!trendChart) return;
+            if (labels.length === 0) {
+                trendChart.data.labels = ['No Data'];
+                trendChart.data.datasets[0].data = [0];
+            } else {
+                trendChart.data.labels = labels;
+                trendChart.data.datasets[0].data = data;
+            }
+            trendChart.update();
+        }
+
+        function displayReportTable(data) {
+            const container = document.getElementById('reportTable');
+            document.getElementById('reportCount').textContent = `${data.length} records`;
+
+            if (data.length === 0) {
+                container.innerHTML = '<div class="text-center text-white/40 py-8">No records found for selected criteria</div>';
+                return;
+            }
+
+            const statusBadges = {
+                'ON-TIME': 'badge-success',
+                'LATE': 'badge-late',
+                'UNDERTIME': 'badge-late',
+                'ABSENT': 'badge-absent'
+            };
+
+            // Limit to 50 records max
+            const displayData = data.slice(0, 50);
+
+            container.innerHTML = displayData.map(record => `
+                <div class="report-row">
+                    <div>
+                        <div class="font-semibold">${record.full_name || 'Unknown'}</div>
+                        <div class="text-sm text-white/40">${record.department || 'N/A'} • ${record.position || 'N/A'}</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-sm text-white/40 mb-1">${record.date ? new Date(record.date).toLocaleDateString() : 'N/A'}</div>
+                        <div class="text-xs text-white/50">
+                            ${record.clock_in ? new Date(record.clock_in).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : 'N/A'} - 
+                            ${record.clock_out ? new Date(record.clock_out).toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : 'N/A'}
+                        </div>
+                    </div>
+                    <span class="badge ${statusBadges[record.status] || 'badge-success'}">${record.status || 'N/A'}</span>
+                </div>
+            `).join('');
+
+            if (data.length > 50) {
+                container.innerHTML += `<div class="text-center text-white/40 py-4 text-sm">Showing first 50 of ${data.length} records. Export to see all.</div>`;
+            }
+        }
+
+        function exportReport() {
+            if (currentReportData.length === 0) {
+                alert('No data to export. Generate a report first.');
+                return;
+            }
+
+            const headers = ['Employee Name', 'Employee ID', 'Department', 'Position', 'Date', 'Day', 'Clock In', 'Clock Out', 'Status'];
+            const rows = currentReportData.map(record => [
+                record.full_name || '',
+                record.employee_id || '',
+                record.department || 'N/A',
+                record.position || 'N/A',
+                record.date || '',
+                record.date ? new Date(record.date).toLocaleDateString('en-US', { weekday: 'short' }) : '',
+                record.clock_in ? new Date(record.clock_in).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
+                record.clock_out ? new Date(record.clock_out).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
+                record.status || ''
+            ]);
+
+            const csvContent = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => {
+                    const str = String(cell);
+                    if (str.includes(',') || str.includes('"')) return `"${str.replace(/"/g, '""')}"`;
+                    return str;
+                }).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            link.setAttribute('href', url);
+            link.setAttribute('download', `attendance_report_${startDate}_to_${endDate}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+    </script>
+</body>
+</html>

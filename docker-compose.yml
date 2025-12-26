@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  neurallens:
+    build: .
+    container_name: neural-lens
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./neural_eye.db:/app/neural_eye.db
+      - ./face_data:/app/face_data
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+    environment:
+      - DEBUG=False
+      - HOST=0.0.0.0
+      - PORT=5000
+      - USE_MOCK_CAMERA=False
+      - DATABASE_PATH=/app/neural_eye.db
+    devices:
+      - /dev/video0:/dev/video0  # Camera device
+    networks:
+      - neurallens-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: neural-lens-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - neurallens
+    networks:
+      - neurallens-network
+
+networks:
+  neurallens-network:
+    driver: bridge

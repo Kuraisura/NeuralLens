@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL LENS | Advanced Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap');
+        
+        :root {
+            --neon-cyan: #00f2ff;
+            --neon-purple: #bc00ff;
+            --neon-green: #00ff88;
+            --deep-space: #010208;
+            --card-bg: rgba(255, 255, 255, 0.02);
+            --card-border: rgba(0, 242, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(ellipse at top, #0a1628 0%, #010208 50%);
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Logo styling */
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-cyan) 50%, var(--neon-purple) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 255, 0.3);
+        }
+
+        /* Glass morphism cards */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(0, 242, 255, 0.4);
+            box-shadow: 0 20px 60px rgba(0, 242, 255, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Stat cards */
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 242, 255, 0.05), rgba(188, 0, 255, 0.05));
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 10px 40px rgba(0, 242, 255, 0.2);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 242, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            padding: 0.875rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--neon-cyan);
+        }
+
+        /* Enhanced table */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead th {
+            background: rgba(0, 242, 255, 0.05);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--neon-cyan);
+            border-bottom: 2px solid rgba(0, 242, 255, 0.2);
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .data-table tbody td {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.875rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-ontime {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .status-late {
+            background: rgba(255, 136, 0, 0.15);
+            color: #ff8800;
+            border: 1px solid rgba(255, 136, 0, 0.3);
+        }
+
+        .status-absent {
+            background: rgba(255, 0, 68, 0.15);
+            color: #ff0044;
+            border: 1px solid rgba(255, 0, 68, 0.3);
+        }
+
+        /* Navigation */
+        .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background: rgba(0, 242, 255, 0.1);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        /* Loading skeleton */
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 1000px 100%;
+            animation: shimmer 2s infinite;
+            border-radius: 8px;
+        }
+
+        /* Scroll bar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 255, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 1.5rem;
+            }
+
+            .logo-text {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background -->
+    <canvas class="bg-particles" id="particles"></canvas>
+
+    <!-- Main container -->
+    <div class="relative z-10">
+        <!-- Header -->
+        <header class="p-6 mb-8">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center">
+                        <i class="fas fa-brain text-white text-xl"></i>
+                    </div>
+                    <div class="logo-text">NEURAL LENS</div>
+                </div>
+                
+                <nav class="hidden md:flex items-center gap-2">
+                    <a href="/dashboard" class="nav-link active">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="/enroll" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Enroll
+                    </a>
+                    <a href="/reports" class="nav-link">
+                        <i class="fas fa-file-alt"></i> Reports
+                    </a>
+                    <a href="/settings" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                </nav>
+
+                <div class="flex items-center gap-3">
+                    <button class="btn-secondary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center cursor-pointer">
+                        <i class="fas fa-user text-white"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content -->
+        <main class="max-w-7xl mx-auto px-6 pb-12">
+            <!-- Stats grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Employees -->
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+                        <i class="fas fa-users text-cyan-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Total Employees</p>
+                        <h3 class="text-3xl font-bold" id="totalEmployees">--</h3>
+                    </div>
+                </div>
+
+                <!-- Present Today -->
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-to-br from-green-500/20 to-emerald-500/20">
+                        <i class="fas fa-check-circle text-green-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Present Today</p>
+                        <h3 class="text-3xl font-bold text-green-400" id="presentToday">--</h3>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="attendanceProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Late Arrivals -->
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-to-br from-orange-500/20 to-yellow-500/20">
+                        <i class="fas fa-clock text-orange-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Late Arrivals</p>
+                        <h3 class="text-3xl font-bold text-orange-400" id="lateCount">--</h3>
+                    </div>
+                </div>
+
+                <!-- Absent -->
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-to-br from-red-500/20 to-pink-500/20">
+                        <i class="fas fa-exclamation-triangle text-red-400"></i>
+                    </div>
+                    <div>
+                        <p class="text-gray-400 text-sm mb-1">Absent</p>
+                        <h3 class="text-3xl font-bold text-red-400" id="absentCount">--</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="glass-card mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold">Recent Activity</h2>
+                    <select class="bg-gray-800/50 border border-gray-700 rounded-lg px-4 py-2 text-sm" id="filterStatus">
+                        <option value="all">All Status</option>
+                        <option value="ON-TIME">On Time</option>
+                        <option value="LATE">Late</option>
+                    </select>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Clock In</th>
+                                <th>Clock Out</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityTable">
+                            <!-- Loading skeleton -->
+                            <tr>
+                                <td colspan="6">
+                                    <div class="skeleton h-12"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Absent Employees -->
+            <div class="glass-card" id="absentSection" style="display: none;">
+                <h2 class="text-2xl font-bold mb-6">Absent Employees</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="absentList">
+                    <!-- Will be populated dynamically -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Particle background animation
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        const particleCount = 50;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.3)';
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            // Draw connections
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(0, 242, 255, ${0.1 * (1 - distance / 150)})`;
+                        ctx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Dashboard data management
+        let dashboardData = {
+            stats: {},
+            attendance: [],
+            absent: []
+        };
+
+        async function fetchDashboardData() {
+            try {
+                // Fetch all data in parallel
+                const [statsRes, attendanceRes] = await Promise.all([
+                    fetch('/api/stats'),
+                    fetch('/api/attendance/today')
+                ]);
+
+                const stats = await statsRes.json();
+                const attendance = await attendanceRes.json();
+
+                dashboardData.stats = stats;
+                dashboardData.attendance = attendance;
+
+                updateDashboard();
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        }
+
+        function updateDashboard() {
+            const { stats, attendance } = dashboardData;
+
+            // Update stats
+            document.getElementById('totalEmployees').textContent = stats.total_employees || 0;
+            document.getElementById('presentToday').textContent = attendance.present || 0;
+            document.getElementById('lateCount').textContent = attendance.late_count || 0;
+            document.getElementById('absentCount').textContent = attendance.absent_count || 0;
+
+            // Update progress bar
+            const attendanceRate = stats.total_employees > 0 
+                ? (attendance.present / stats.total_employees * 100).toFixed(1)
+                : 0;
+            document.getElementById('attendanceProgress').style.width = `${attendanceRate}%`;
+
+            // Update activity table
+            updateActivityTable(attendance.late || []);
+
+            // Update absent list
+            if (attendance.absent && attendance.absent.length > 0) {
+                document.getElementById('absentSection').style.display = 'block';
+                updateAbsentList(attendance.absent);
+            } else {
+                document.getElementById('absentSection').style.display = 'none';
+            }
+        }
+
+        function updateActivityTable(records) {
+            const tbody = document.getElementById('activityTable');
+            
+            if (records.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-400 py-8">
+                            <i class="fas fa-inbox text-4xl mb-2"></i>
+                            <p>No recent activity</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = records.map(record => `
+                <tr>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center">
+                                <span class="text-sm font-bold">${record.full_name?.charAt(0) || '?'}</span>
+                            </div>
+                            <div>
+                                <p class="font-medium">${record.full_name || 'Unknown'}</p>
+                                <p class="text-xs text-gray-400">${record.emp_code || 'N/A'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${record.department || 'N/A'}</td>
+                    <td>${formatTime(record.clock_in)}</td>
+                    <td>${record.clock_out ? formatTime(record.clock_out) : '<span class="text-gray-500">Active</span>'}</td>
+                    <td><span class="status-badge status-${record.status?.toLowerCase() || 'ontime'}">${record.status || 'ON-TIME'}</span></td>
+                    <td>
+                        <button class="text-cyan-400 hover:text-cyan-300" onclick="viewDetails(${record.id})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateAbsentList(absent) {
+            const container = document.getElementById('absentList');
+            container.innerHTML = absent.map(emp => `
+                <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <i class="fas fa-user-times text-red-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium">${emp.full_name}</p>
+                            <p class="text-xs text-gray-400">${emp.department || 'N/A'}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function viewDetails(id) {
+            // Implement view details
+            alert(`View details for record ID: ${id}`);
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+            fetchDashboardData();
+        });
+
+        document.getElementById('filterStatus').addEventListener('change', (e) => {
+            // Implement filtering
+            console.log('Filter by:', e.target.value);
+        });
+
+        // Initial load
+        fetchDashboardData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchDashboardData, 30000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURAL EYE | Secure Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Outfit:wght@100;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00f2ff;
+            --neon-purple: #bc00ff;
+            --deep-space: #010208;
+            --surface: rgba(255, 255, 255, 0.03);
+            --border: rgba(0, 242, 255, 0.12);
+            --border-hover: rgba(0, 242, 255, 0.3);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--deep-space);
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            min-height: 100vh;
+            margin: 0;
+            background: radial-gradient(ellipse at 50% 30%, #0a1628 0%, #010208 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .logo-text {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, var(--neon-blue) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-card {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 242, 255, 0.5);
+        }
+
+        .input-field {
+            background: rgba(8, 16, 33, 0.6);
+            border: 1px solid rgba(0, 242, 255, 0.15);
+            border-radius: 10px;
+            padding: 1rem;
+            width: 100%;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            background: rgba(8, 16, 33, 0.8);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid rgba(255, 77, 77, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem;
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-bottom: 1rem;
+        }
+
+        .input-icon-wrapper {
+            position: relative;
+        }
+
+        .input-icon-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(0, 242, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        .input-icon-wrapper input {
+            padding-left: 2.75rem;
+        }
+
+        @media (max-width: 480px) {
+            .login-card { padding: 2rem 1.5rem; }
+            .logo-text { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="text-center mb-8">
+            <h1 class="logo-text mb-2">NEURAL EYE</h1>
+            <p class="text-white/50 text-sm">Secure System Access</p>
+        </div>
+
+        <div id="errorMsg" class="error-message hidden">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="errorText"></span>
+        </div>
+
+        <form id="loginForm">
+            <div class="mb-4">
+                <label class="block text-xs text-white/50 mb-2 uppercase tracking-wider font-medium">
+                    Username
+                </label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" class="input-field" placeholder="Enter your username" required autocomplete="username">
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-xs text-white/50 mb-2 uppercase tracking-wider font-medium">
+                    Password
+                </label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="input-field" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                <span id="loginBtnText">LOGIN</span>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center text-xs text-white/30">
+            <p>Default credentials: admin / admin</p>
+            <p class="mt-2">Contact your administrator if you need access</p>
+        </div>
+    </div>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMsg.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMsg.classList.add('hidden');
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!username || !password) {
+                showError('Please enter both username and password');
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtnText.textContent = 'LOGGING IN...';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    loginBtnText.textContent = 'SUCCESS!';
+                    if (data.role === 'admin' || data.role === 'manager') {
+                        window.location.href = '/dashboard';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    showError(data.message || 'Login failed');
+                    loginBtn.disabled = false;
+                    loginBtnText.textContent = 'LOGIN';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Network error. Please try again.');
+                loginBtn.disabled = false;
+                loginBtnText.textContent = 'LOGIN';
+            }
+        });
+
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>

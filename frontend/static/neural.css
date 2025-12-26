@@ -1,0 +1,170 @@
+/* Neural Eye shared product UI — tokens, forms, responsive shell */
+
+:root {
+    --accent: #2ec4b6;
+    --accent-2: #3d8bfd;
+    --ink: #e8eef6;
+    --muted: #93a4b8;
+    --line: rgba(46, 196, 182, 0.22);
+    --surface: rgba(10, 18, 32, 0.78);
+    --danger: #f07167;
+    --ok: #3dd68c;
+    --warn: #e9c46a;
+    --radius: 12px;
+    --header-h: 72px;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1rem;
+    min-height: var(--header-h);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.nav-toggle {
+    display: none;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    border-radius: 10px;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+}
+
+.page-wrap {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 1.25rem 2.5rem;
+    width: 100%;
+}
+
+.chart-box {
+    position: relative;
+    height: 260px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.chart-box canvas {
+    max-height: 260px !important;
+}
+
+.field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.field-error {
+    display: none;
+    color: var(--danger);
+    font-size: 0.75rem;
+}
+
+.field-block.invalid .field-error,
+.input-field.invalid + .field-error {
+    display: block;
+}
+
+.input-field.invalid,
+select.input-field.invalid,
+textarea.input-field.invalid {
+    border-color: var(--danger) !important;
+    box-shadow: 0 0 0 1px rgba(240, 113, 103, 0.35);
+}
+
+.input-field.valid {
+    border-color: rgba(61, 214, 140, 0.45) !important;
+}
+
+.employee-cards {
+    display: none;
+}
+
+.cam-help {
+    margin-top: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgba(61, 139, 253, 0.08);
+    color: var(--ink);
+    font-size: 0.85rem;
+    line-height: 1.45;
+}
+
+.cam-help[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 1024px) {
+    .logo-text {
+        font-size: 1.15rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .site-nav {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .site-nav.open {
+        display: flex;
+    }
+
+    .site-nav .nav-link,
+    .site-nav .btn-secondary {
+        width: 100%;
+        text-align: left;
+    }
+
+    .employee-table-wrap {
+        display: none;
+    }
+
+    .employee-cards {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .employee-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 1rem;
+        background: var(--surface);
+    }
+
+    .report-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0.65rem;
+    }
+}

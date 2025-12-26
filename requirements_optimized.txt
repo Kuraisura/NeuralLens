@@ -1,0 +1,156 @@
+# Neural Lens - Enhanced Requirements
+# Version 2.0 - Performance Optimized
+
+# Core Framework
+flask==3.0.0
+flask-cors==4.0.0
+flask-compress==1.14  # NEW: Response compression
+werkzeug==3.0.1
+
+# Computer Vision & Face Recognition
+opencv-python==4.8.1.78
+face-recognition==1.3.0
+numpy==1.24.3
+pillow==10.1.0
+
+# Build Dependencies for face_recognition
+cmake==3.27.7
+dlib==19.24.2
+
+# Security & Authentication
+bcrypt==4.1.2
+PyJWT==2.8.0
+cryptography==41.0.7
+python-dotenv==1.0.0
+
+# System Monitoring & Performance
+psutil==5.9.6  # System resource monitoring
+py-cpuinfo==9.0.0  # CPU information
+
+# Async & Threading (Already in Python 3.x standard library)
+# concurrent.futures - Built-in
+# threading - Built-in
+
+# Caching (In-memory - no external dependencies)
+# Custom implementation in caching_system.py
+
+# Optional: Redis for distributed caching (uncomment if needed)
+# redis==5.0.1
+# hiredis==2.2.3  # C parser for Redis
+
+# Database
+# SQLite3 - Built-in with Python
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-timeout==2.2.0
+pytest-benchmark==4.0.0
+pytest-asyncio==0.21.1
+
+# Code Quality
+pylint==3.0.3
+flake8==6.1.0
+mypy==1.7.1
+black==23.12.1
+isort==5.13.2
+bandit==1.7.6  # Security linter
+safety==2.3.5  # Dependency security checker
+
+# Development Tools
+ipython==8.18.1
+ipdb==0.13.13
+watchdog==3.0.0  # File system monitoring
+
+# Documentation
+mkdocs==1.5.3  # Optional: For documentation
+mkdocs-material==9.5.3  # Material theme
+
+# Profiling & Debugging (Development only)
+memory-profiler==0.61.0
+line-profiler==4.1.1
+py-spy==0.3.14  # Sampling profiler
+
+# API Documentation (Optional)
+flask-swagger-ui==4.11.1
+flasgger==0.9.7.1
+
+# Rate Limiting (Optional but recommended for production)
+flask-limiter==3.5.0
+
+# Additional Production Dependencies
+gunicorn==21.2.0  # WSGI server for production
+gevent==23.9.1  # Async worker for gunicorn
+
+# Monitoring & Observability (Optional)
+prometheus-client==0.19.0  # Metrics export
+sentry-sdk[flask]==1.39.1  # Error tracking
+
+# Environment Management
+python-decouple==3.8  # Environment variable management
+
+# Data Validation
+pydantic==2.5.2  # Data validation
+marshmallow==3.20.1  # Serialization
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3.post1  # Timezone support
+humanize==4.9.0  # Human-readable numbers
+
+# Image Processing Optimization
+opencv-contrib-python==4.8.1.78  # Additional OpenCV modules (optional)
+# turbojpeg==1.7.4  # Fast JPEG encoding (optional, requires libturbojpeg)
+
+# Performance Profiling
+cProfile  # Built-in
+timeit  # Built-in
+
+# ===== OPTIONAL ENHANCEMENTS =====
+
+# GPU Acceleration (CUDA support)
+# Uncomment if you have NVIDIA GPU and CUDA installed
+# opencv-contrib-python-headless==4.8.1.78
+# cupy-cuda11x==12.3.0  # Replace 11x with your CUDA version
+
+# Message Queue (for distributed processing)
+# celery==5.3.4
+# kombu==5.3.4
+
+# Advanced Caching
+# diskcache==5.6.3  # Disk-based cache
+# pylibmc==1.6.3  # Memcached client
+
+# Load Balancing
+# haproxy-python==0.4.0
+
+# ===== PLATFORM-SPECIFIC =====
+
+# Windows-specific
+# pywin32==306  # Uncomment on Windows
+
+# Linux-specific
+# python-daemon==3.0.1  # Uncomment on Linux for daemon mode
+
+# ===== NOTES =====
+# 
+# Installation:
+#   pip install -r requirements_optimized.txt
+#
+# For production:
+#   pip install -r requirements_optimized.txt --no-dev
+#
+# For development with all optional packages:
+#   pip install -r requirements_optimized.txt
+#   pip install -r requirements-dev.txt  # If you have separate dev requirements
+#
+# GPU Support:
+#   Requires CUDA Toolkit and cuDNN installed
+#   See: https://docs.opencv.org/master/d6/d15/tutorial_building_tegra_cuda.html
+#
+# Performance Tips:
+#   - Use virtual environment (venv or conda)
+#   - Install binary wheels when available (pip install --only-binary :all:)
+#   - Use pip cache to speed up reinstalls
+#   - Consider using pip-tools for dependency management
